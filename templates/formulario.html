@@ -32,132 +32,140 @@
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <h2 class="mb-4">📑 Registro de Protocolos</h2>
-        {% if mensaje %}
-            <div class="alert alert-info">{{ mensaje }}</div>
-        {% endif %}
-        <form method="POST" action="/registro" enctype="multipart/form-data">
-            <div class="row">
-                <!-- Jerarquía -->
-                <div class="col-md-4">
-                    <div class="form-section">
-                        <h4>Selección Jerárquica</h4>
-                        {% for i in range(1, 6) %}
-                            <div class="mb-3">
-                                <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
-                                <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
-                                    <option value="">-- Seleccionar --</option>
-                                    <option value="-- No Item --">-- No Item --</option>
-                                </select>
-                            </div>
-                        {% endfor %}
+<div class="container mt-4">
+    <h2 class="mb-4">📑 Registro de Protocolos</h2>
+
+    {% if mensaje %}
+        <div class="alert alert-info">{{ mensaje }}</div>
+    {% endif %}
+
+    <form method="POST" action="/registro" enctype="multipart/form-data">
+        <div class="row">
+
+            <!-- Jerarquía -->
+            <div class="col-md-4">
+                <div class="form-section">
+                    <h4>Selección Jerárquica</h4>
+                    {% for i in range(1, 6) %}
+                    <div class="mb-3">
+                        <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
+                        <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                            <option value="">-- Seleccionar --</option>
+                        </select>
                     </div>
-                </div>
-
-                <!-- Formulario -->
-                <div class="col-md-8">
-                    <div class="form-section">
-                        <h4>Datos del Protocolo</h4>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <input class="form-control mb-3" name="rp_number" placeholder="Número Recepción Final">
-                                <input class="form-control mb-3" name="protocol_number" placeholder="Número Protocolo" required>
-                                <select class="form-select mb-3" name="status">
-                                    <option value="">Estado</option>
-                                    <option value="aprobado">Aprobado</option>
-                                    <option value="pendiente">Pendiente</option>
-                                    <option value="rechazado">Rechazado</option>
-                                </select>
-                                <input class="form-control mb-3" name="pk_start" placeholder="PK Inicio">
-                                <input class="form-control mb-3" name="pk_end" placeholder="PK Fin">
-                            </div>
-                            <div class="col-md-6">
-                                <select class="form-select mb-3" name="work_side">
-                                    <option value="">Lado de Trabajo</option>
-                                    <option value="izquierdo">Izquierdo</option>
-                                    <option value="derecho">Derecho</option>
-                                    <option value="completa">Completa</option>
-                                </select>
-                                <input class="form-control mb-3" name="layer" placeholder="Número de Capa">
-                                <input class="form-control mb-3" name="thickness_m" placeholder="Espesor (m)">
-                                <input class="form-control mb-3" name="tag" placeholder="TAG">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">Fecha de Envío</label>
-                                <input type="date" class="form-control mb-3" name="submission_date_rp">
-                                <label class="form-label">Fecha de Aprobación</label>
-                                <input type="date" class="form-control mb-3" name="approval_date_rp">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Observaciones</label>
-                                <textarea class="form-control mb-3" name="observation_notes" rows="5"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Carga de archivo Excel -->
-                        <div class="mb-3">
-                            <label class="form-label">Seleccionar archivo Excel</label>
-                            <input class="form-control" type="file" name="archivo_excel" accept=".xlsx" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Guardar Registro</button>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
-        </form>
-    </div>
 
-    <!-- Cargar jerarquía dinámicamente -->
-    <script>
-        async function cargarJerarquia() {
-            const response = await fetch('/jerarquia');
-            const data = await response.json();
+            <!-- Formulario -->
+            <div class="col-md-8">
+                <div class="form-section">
+                    <h4>Datos del Protocolo</h4>
 
-            function poblarNivel(selectId, opciones) {
-                const select = document.getElementById(selectId);
-                select.innerHTML = '<option value="">-- Seleccionar --</option><option value="-- No Item --">-- No Item --</option>';
-                for (const codigo in opciones) {
-                    const descripcion = opciones[codigo].descripcion;
-                    const option = document.createElement('option');
-                    option.value = `${codigo} ${descripcion}`;
-                    option.textContent = `${codigo} ${descripcion}`;
-                    select.appendChild(option);
-                }
+                    <!-- Subida del archivo -->
+                    <div class="mb-3">
+                        <label for="archivo_excel" class="form-label">Selecciona archivo Excel</label>
+                        <input type="file" name="archivo_excel" class="form-control" accept=".xlsx" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input class="form-control mb-3" name="rp_number" placeholder="Número Recepción Final">
+                            <input class="form-control mb-3" name="protocol_number" placeholder="Número Protocolo" required>
+                            <select class="form-select mb-3" name="status">
+                                <option value="">Estado</option>
+                                <option value="aprobado">Aprobado</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="rechazado">Rechazado</option>
+                            </select>
+                            <input class="form-control mb-3" name="pk_start" placeholder="PK Inicio">
+                            <input class="form-control mb-3" name="pk_end" placeholder="PK Fin">
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-select mb-3" name="work_side">
+                                <option value="">Lado de Trabajo</option>
+                                <option value="izquierdo">Izquierdo</option>
+                                <option value="derecho">Derecho</option>
+                                <option value="completa">Completa</option>
+                            </select>
+                            <input class="form-control mb-3" name="layer" placeholder="Número de Capa">
+                            <input class="form-control mb-3" name="thickness_m" placeholder="Espesor (m)">
+                            <input class="form-control mb-3" name="tag" placeholder="TAG">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de Envío</label>
+                            <input type="date" class="form-control mb-3" name="submission_date_rp">
+                            <label class="form-label">Fecha de Aprobación</label>
+                            <input type="date" class="form-control mb-3" name="approval_date_rp">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-control mb-3" name="observation_notes" rows="5"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Guardar Registro</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    async function cargarJerarquia() {
+        const response = await fetch("/jerarquia");
+        const data = await response.json();
+
+        function poblarNivel(nivel, opciones) {
+            const select = document.getElementById(`nivel${nivel}`);
+            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+            for (const [codigo, contenido] of Object.entries(opciones)) {
+                const opt = document.createElement("option");
+                opt.value = `${codigo} ${contenido.descripcion}`;
+                opt.textContent = `${codigo} ${contenido.descripcion}`;
+                select.appendChild(opt);
             }
-
-            let niveles = [1, 2, 3, 4, 5];
-            let estructura = data;
-            niveles.forEach(nivel => {
-                document.getElementById(`nivel${nivel}`).addEventListener('change', function () {
-                    let valor = this.value;
-                    for (let i = nivel + 1; i <= 5; i++) {
-                        document.getElementById(`nivel${i}`).innerHTML = '<option value="">-- Seleccionar --</option><option value="-- No Item --">-- No Item --</option>';
-                    }
-
-                    if (valor === "-- No Item --") return;
-
-                    let partes = valor.split(" ")[0];
-                    let nodo = estructura[partes];
-                    for (let i = 2; i <= nivel; i++) {
-                        let sel = document.getElementById(`nivel${i - 1}`).value.split(" ")[0];
-                        nodo = nodo?.subitems?.[sel];
-                        if (!nodo) break;
-                    }
-
-                    if (nodo?.subitems && nivel < 5) {
-                        poblarNivel(`nivel${nivel + 1}`, nodo.subitems);
-                    }
-                });
-            });
-
-            poblarNivel("nivel1", estructura);
+            const sinItem = document.createElement("option");
+            sinItem.value = "-- No Item --";
+            sinItem.textContent = "-- No Item --";
+            select.appendChild(sinItem);
         }
 
-        window.onload = cargarJerarquia;
-    </script>
+        function limpiarDesde(nivel) {
+            for (let i = nivel; i <= 5; i++) {
+                const select = document.getElementById(`nivel${i}`);
+                select.innerHTML = '<option value="">-- Seleccionar --</option><option value="-- No Item --">-- No Item --</option>';
+            }
+        }
+
+        let actual = data;
+        poblarNivel(1, actual);
+
+        for (let nivel = 1; nivel < 5; nivel++) {
+            document.getElementById(`nivel${nivel}`).addEventListener("change", function () {
+                let seleccion = this.value;
+                if (seleccion === "-- No Item --") {
+                    limpiarDesde(nivel + 1);
+                    return;
+                }
+
+                let partes = seleccion.split(" ");
+                let codigo = partes[0];
+                let temp = actual[codigo];
+                if (temp && temp.subitems) {
+                    actual = temp.subitems;
+                    poblarNivel(nivel + 1, actual);
+                } else {
+                    limpiarDesde(nivel + 1);
+                }
+            });
+        }
+    }
+
+    cargarJerarquia();
+</script>
 </body>
 </html>
