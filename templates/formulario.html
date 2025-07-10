@@ -35,9 +35,9 @@
     <div class="container mt-4">
         <h2 class="mb-4">📑 Registro de Protocolos</h2>
         {% if mensaje %}
-        <div class="alert alert-info">{{ mensaje }}</div>
+            <div class="alert alert-info">{{ mensaje }}</div>
         {% endif %}
-        <form method="POST" action="/registro">
+        <form method="POST" action="/registro" enctype="multipart/form-data">
             <div class="row">
                 <!-- Jerarquía -->
                 <div class="col-md-4">
@@ -48,6 +48,7 @@
                                 <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
                                 <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
                                     <option value="">-- Seleccionar --</option>
+                                    <option value="-- No Item --">-- No Item --</option>
                                 </select>
                             </div>
                         {% endfor %}
@@ -61,7 +62,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <input class="form-control mb-3" name="rp_number" placeholder="Número Recepción Final">
-                                <input class="form-control mb-3" name="protocol_number" placeholder="Número Protocolo">
+                                <input class="form-control mb-3" name="protocol_number" placeholder="Número Protocolo" required>
                                 <select class="form-select mb-3" name="status">
                                     <option value="">Estado</option>
                                     <option value="aprobado">Aprobado</option>
@@ -97,6 +98,12 @@
                             </div>
                         </div>
 
+                        <!-- Carga de archivo Excel -->
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar archivo Excel</label>
+                            <input class="form-control" type="file" name="archivo_excel" accept=".xlsx" required>
+                        </div>
+
                         <button type="submit" class="btn btn-primary w-100">Guardar Registro</button>
                     </div>
                 </div>
@@ -104,61 +111,53 @@
         </form>
     </div>
 
-    <!-- SCRIPT para cargar JSON -->
+    <!-- Cargar jerarquía dinámicamente -->
     <script>
-        document.addEventListener("DOMContentLoaded", async function () {
-            let jerarquia;
-            try {
-                const response = await fetch("/jerarquia");
-                jerarquia = await response.json();
-            } catch (e) {
-                alert("No se pudo cargar el archivo de jerarquía.");
-                return;
-            }
+        async function cargarJerarquia() {
+            const response = await fetch('/jerarquia');
+            const data = await response.json();
 
-            function limpiarSelectDesde(nivel) {
-                for (let i = nivel; i <= 5; i++) {
-                    const select = document.getElementById("nivel" + i);
-                    select.innerHTML = '<option value="">-- Seleccionar --</option>';
-                }
-            }
-
-            function construirSelect(nivel, opciones) {
-                const select = document.getElementById("nivel" + nivel);
-                select.innerHTML = '<option value="">-- Seleccionar --</option>';
-                for (const [codigo, info] of Object.entries(opciones)) {
-                    const option = document.createElement("option");
-                    option.value = `${codigo} ${info.descripcion}`;
-                    option.text = `${codigo} ${info.descripcion}`;
+            function poblarNivel(selectId, opciones) {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">-- Seleccionar --</option><option value="-- No Item --">-- No Item --</option>';
+                for (const codigo in opciones) {
+                    const descripcion = opciones[codigo].descripcion;
+                    const option = document.createElement('option');
+                    option.value = `${codigo} ${descripcion}`;
+                    option.textContent = `${codigo} ${descripcion}`;
                     select.appendChild(option);
                 }
-
-                const noItem = document.createElement("option");
-                noItem.value = "-- No Item --";
-                noItem.text = "-- No Item --";
-                select.appendChild(noItem);
             }
 
-            function manejarCambio(nivel, datos) {
-                const select = document.getElementById("nivel" + nivel);
-                select.addEventListener("change", function () {
-                    const seleccion = select.value;
-                    limpiarSelectDesde(nivel + 1);
+            let niveles = [1, 2, 3, 4, 5];
+            let estructura = data;
+            niveles.forEach(nivel => {
+                document.getElementById(`nivel${nivel}`).addEventListener('change', function () {
+                    let valor = this.value;
+                    for (let i = nivel + 1; i <= 5; i++) {
+                        document.getElementById(`nivel${i}`).innerHTML = '<option value="">-- Seleccionar --</option><option value="-- No Item --">-- No Item --</option>';
+                    }
 
-                    if (seleccion === "-- No Item --" || seleccion === "") return;
+                    if (valor === "-- No Item --") return;
 
-                    const [codigo] = seleccion.split(" ");
-                    const subitems = datos[codigo]?.subitems;
-                    if (subitems && Object.keys(subitems).length > 0) {
-                        construirSelect(nivel + 1, subitems);
-                        manejarCambio(nivel + 1, subitems);
+                    let partes = valor.split(" ")[0];
+                    let nodo = estructura[partes];
+                    for (let i = 2; i <= nivel; i++) {
+                        let sel = document.getElementById(`nivel${i - 1}`).value.split(" ")[0];
+                        nodo = nodo?.subitems?.[sel];
+                        if (!nodo) break;
+                    }
+
+                    if (nodo?.subitems && nivel < 5) {
+                        poblarNivel(`nivel${nivel + 1}`, nodo.subitems);
                     }
                 });
-            }
+            });
 
-            construirSelect(1, jerarquia);
-            manejarCambio(1, jerarquia);
-        });
+            poblarNivel("nivel1", estructura);
+        }
+
+        window.onload = cargarJerarquia;
     </script>
 </body>
 </html>
