@@ -15,7 +15,7 @@ EXCEL_SHEET = "protocol"
 
 @app.get("/", response_class=HTMLResponse)
 def formulario(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "mensaje": ""})
+    return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": ""})
 
 @app.post("/registro", response_class=HTMLResponse)
 def registrar(
@@ -33,4 +33,4 @@ def registrar(
     }
 
     ok, mensaje = guardar_fila_excel(EXCEL_PATH, EXCEL_SHEET, fila)
-    return templates.TemplateResponse("index.html", {"request": request, "mensaje": mensaje})
+    return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": mensaje})
