@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>GeoProtocolos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #12121b;
+            color: #E1E1E1;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .form-section {
+            background-color: #1e1e2f;
+            padding: 2rem;
+            border-radius: 10px;
+        }
+        .form-control, .form-select {
+            background-color: #2c2c3e;
+            color: #E1E1E1;
+            border: none;
+        }
+        .form-control::placeholder {
+            color: #aaa;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem #3f6fff77;
+        }
+        h2, h4 {
+            color: #F0F0F0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="mb-4">📑 Registro de Protocolos</h2>
+        <form method="POST" action="/registrar">
+            <div class="row">
+                <!-- Jerarquía -->
+                <div class="col-md-4">
+                    <div class="form-section">
+                        <h4>Selección Jerárquica</h4>
+                        {% for i in range(1, 6) %}
+                            <div class="mb-3">
+                                <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
+                                <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                                    <option value="">-- Seleccionar --</option>
+                                    <!-- Opciones se cargarán dinámicamente por JS o servidor -->
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <div class="col-md-8">
+                    <div class="form-section">
+                        <h4>Datos del Protocolo</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input class="form-control mb-3" name="rp_number" placeholder="Número Recepción Final">
+                                <input class="form-control mb-3" name="protocol_number" placeholder="Número Protocolo">
+                                <select class="form-select mb-3" name="status">
+                                    <option value="">Estado</option>
+                                    <option value="aprobado">Aprobado</option>
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="rechazado">Rechazado</option>
+                                </select>
+                                <input class="form-control mb-3" name="pk_start" placeholder="PK Inicio">
+                                <input class="form-control mb-3" name="pk_end" placeholder="PK Fin">
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-select mb-3" name="work_side">
+                                    <option value="">Lado de Trabajo</option>
+                                    <option value="izquierdo">Izquierdo</option>
+                                    <option value="derecho">Derecho</option>
+                                    <option value="completa">Completa</option>
+                                </select>
+                                <input class="form-control mb-3" name="layer" placeholder="Número de Capa">
+                                <input class="form-control mb-3" name="thickness_m" placeholder="Espesor (m)">
+                                <input class="form-control mb-3" name="tag" placeholder="TAG">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de Envío</label>
+                                <input type="date" class="form-control mb-3" name="submission_date_rp">
+                                <label class="form-label">Fecha de Aprobación</label>
+                                <input type="date" class="form-control mb-3" name="approval_date_rp">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Observaciones</label>
+                                <textarea class="form-control mb-3" name="observation_notes" rows="5"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Guardar Registro</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
