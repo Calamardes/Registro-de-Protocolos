@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from excel_handler import guardar_fila_excel
 from datetime import date
+import json
+import os
 
 app = FastAPI()
 
@@ -34,3 +36,12 @@ def registrar(
 
     ok, mensaje = guardar_fila_excel(EXCEL_PATH, EXCEL_SHEET, fila)
     return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": mensaje})
+
+# ✅ Ruta para entregar el JSON de jerarquía
+@app.get("/jerarquia")
+def obtener_jerarquia():
+    json_path = os.path.join("data", "itemizado_acciona.json")
+    if not os.path.exists(json_path):
+        return JSONResponse(status_code=404, content={"error": "Archivo JSON no encontrado"})
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
