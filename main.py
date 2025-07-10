@@ -1,116 +1,99 @@
 from fastapi import FastAPI, Request, Form, UploadFile, File
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from openpyxl import load_workbook
-from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
+from excel_handler import guardar_fila_excel
 import shutil
 import os
-import json
 
 app = FastAPI()
+
+# Habilita CORS si lo usas desde frontend externo
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/", response_class=HTMLResponse)
-def formulario(request: Request):
-    return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": ""})
-
+# Ruta del JSON jerárquico
 @app.get("/jerarquia")
 def obtener_jerarquia():
     json_path = os.path.join("data", "itemizado_acciona.json")
     if not os.path.exists(json_path):
-        return JSONResponse(status_code=404, content={"error": "Archivo JSON no encontrado"})
+        return {"error": "Archivo JSON no encontrado"}
     with open(json_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        return f.read()
 
+# Página inicial del formulario
+@app.get("/", response_class=HTMLResponse)
+def formulario(request: Request):
+    return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": ""})
+
+# Registro con carga de archivo Excel
 @app.post("/registro", response_class=HTMLResponse)
 async def registrar(
     request: Request,
     archivo_excel: UploadFile = File(...),
+    nivel1: str = Form(""),
+    nivel2: str = Form(""),
+    nivel3: str = Form(""),
+    nivel4: str = Form(""),
+    nivel5: str = Form(""),
     rp_number: str = Form(""),
-    protocol_number: str = Form(...),
+    protocol_number: str = Form(""),
     status: str = Form(""),
     pk_start: str = Form(""),
     pk_end: str = Form(""),
-    layer: str = Form(""),
     work_side: str = Form(""),
+    layer: str = Form(""),
     thickness_m: str = Form(""),
     tag: str = Form(""),
     submission_date_rp: str = Form(""),
     approval_date_rp: str = Form(""),
     observation_notes: str = Form(""),
-    nivel1: str = Form(""),
-    nivel2: str = Form(""),
-    nivel3: str = Form(""),
-    nivel4: str = Form(""),
-    nivel5: str = Form("")
 ):
     if not protocol_number.strip():
         return templates.TemplateResponse("formulario.html", {
             "request": request,
-            "mensaje": "❌ Debes ingresar al menos el número de protocolo para guardar."
+            "mensaje": "⚠️ Debes ingresar al menos el número de protocolo para registrar."
         })
 
-    # Guardar archivo subido en carpeta temporal
-    nombre_excel = archivo_excel.filename
-    ruta_guardado = os.path.join("archivos_temporales", nombre_excel)
-    os.makedirs("archivos_temporales", exist_ok=True)
-    with open(ruta_guardado, "wb") as buffer:
+    # Guardar archivo temporal
+    temp_path = f"temp_{archivo_excel.filename}"
+    with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(archivo_excel.file, buffer)
 
-    # Abrir Excel y registrar datos
-    try:
-        wb = load_workbook(ruta_guardado)
-        hoja_nombre = "protocol"
-        if hoja_nombre not in wb.sheetnames:
-            return templates.TemplateResponse("formulario.html", {
-                "request": request,
-                "mensaje": f"❌ La hoja '{hoja_nombre}' no existe en el archivo."
-            })
+    fila = {
+        "level_1": nivel1 or "-- No Item --",
+        "level_2": nivel2 or "-- No Item --",
+        "level_3": nivel3 or "-- No Item --",
+        "level_4": nivel4 or "-- No Item --",
+        "level_5": nivel5 or "-- No Item --",
+        "rp_number": rp_number,
+        "protocol_number": protocol_number,
+        "status": status,
+        "pk_start": pk_start,
+        "pk_end": pk_end,
+        "work_side": work_side,
+        "layer": layer,
+        "thickness_m": thickness_m,
+        "tag": tag,
+        "submission_date_rp": submission_date_rp,
+        "approval_date_rp": approval_date_rp,
+        "observation_notes": observation_notes,
+    }
 
-        ws = wb[hoja_nombre]
-        headers = [cell.value for cell in ws[1]]
-        col_map = {col: idx + 1 for idx, col in enumerate(headers)}
+    ok, mensaje = guardar_fila_excel(temp_path, "protocol", fila)
 
-        nueva_fila = ws.max_row + 1
-        while ws[f"A{nueva_fila}"].value not in [None, ""]:
-            nueva_fila += 1
+    # Eliminar archivo temporal después de usarlo (opcional)
+    # os.remove(temp_path)
 
-        fila = {
-            "rp_number": rp_number.strip() or None,
-            "protocol_number": protocol_number.strip(),
-            "status": status.strip().lower() or None,
-            "pk_start": float(pk_start) if pk_start else None,
-            "pk_end": float(pk_end) if pk_end else None,
-            "layer": int(layer) if layer else None,
-            "work_side": work_side.strip().lower() or None,
-            "thickness_m": float(thickness_m) if thickness_m else None,
-            "tag": tag.strip() or None,
-            "submission_date_rp": submission_date_rp or None,
-            "approval_date_rp": approval_date_rp or None,
-            "observation_notes": observation_notes.strip() or None,
-            "level_1": nivel1,
-            "level_2": nivel2,
-            "level_3": nivel3,
-            "level_4": nivel4,
-            "level_5": nivel5,
-        }
-
-        for campo, valor in fila.items():
-            if campo in col_map:
-                ws.cell(row=nueva_fila, column=col_map[campo], value=valor)
-
-        wb.save(ruta_guardado)
-
-        return templates.TemplateResponse("formulario.html", {
-            "request": request,
-            "mensaje": f"✅ Registro guardado exitosamente en la fila {nueva_fila} del archivo '{nombre_excel}'."
-        })
-
-    except Exception as e:
-        return templates.TemplateResponse("formulario.html", {
-            "request": request,
-            "mensaje": f"❌ Error al guardar: {str(e)}"
-        })
+    return templates.TemplateResponse("formulario.html", {
+        "request": request,
+        "mensaje": mensaje
+    })
