@@ -45,7 +45,6 @@
                                 <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
                                 <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
                                     <option value="">-- Seleccionar --</option>
-                                    <!-- Opciones se cargarán dinámicamente por JS o servidor -->
                                 </select>
                             </div>
                         {% endfor %}
@@ -96,10 +95,53 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">Guardar Registro</button>
+
+                        {% if mensaje %}
+                            <div class="alert alert-info mt-3">{{ mensaje }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </form>
     </div>
+
+    <!-- JavaScript para cargar jerarquía -->
+    <script>
+        let jerarquiaData = {};
+        let niveles = 5;
+
+        fetch("/jerarquia")
+            .then(response => response.json())
+            .then(data => {
+                jerarquiaData = data;
+                cargarNivel(1, jerarquiaData);
+            });
+
+        function cargarNivel(nivel, data) {
+            if (nivel > niveles) return;
+
+            const select = document.getElementById(`nivel${nivel}`);
+            select.innerHTML = `<option value="">-- Seleccionar --</option>`;
+
+            for (let codigo in data) {
+                const descripcion = data[codigo]["descripcion"];
+                const option = document.createElement("option");
+                option.value = codigo;
+                option.textContent = `${codigo} ${descripcion}`;
+                select.appendChild(option);
+            }
+
+            select.onchange = function () {
+                for (let i = nivel + 1; i <= niveles; i++) {
+                    document.getElementById(`nivel${i}`).innerHTML = `<option value="">-- Seleccionar --</option>`;
+                }
+
+                const seleccionado = this.value;
+                if (seleccionado && data[seleccionado] && data[seleccionado]["subitems"]) {
+                    cargarNivel(nivel + 1, data[seleccionado]["subitems"]);
+                }
+            };
+        }
+    </script>
 </body>
 </html>
