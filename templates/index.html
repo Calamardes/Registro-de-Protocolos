@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Protocolos</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Registro de Protocolo</h2>
+        <form method="post" action="/registro">
+            <label>N° Protocolo:</label>
+            <input type="text" name="protocol_number" required>
+
+            <label>Estado:</label>
+            <select name="status" required>
+                <option value="">-- Selecciona --</option>
+                <option value="aprobado">Aprobado</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="rechazado">Rechazado</option>
+            </select>
+
+            <label>Fecha de Envío:</label>
+            <input type="date" name="submission_date" required>
+
+            <label>Observaciones:</label>
+            <textarea name="observation_notes"></textarea>
+
+            <button type="submit">Guardar Registro</button>
+        </form>
+
+        {% if mensaje %}
+            <p><strong>{{ mensaje }}</strong></p>
+        {% endif %}
+    </div>
+</body>
+</html>
