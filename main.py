@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_303_SEE_OTHER
 from excel_handler import guardar_fila_excel
-from auth import mostrar_login, procesar_login, obtener_usuario_desde_cookie
+from auth import autenticar_usuario, obtener_usuario_desde_cookie, mostrar_login, procesar_login
 import shutil
 import os
 
@@ -23,13 +23,17 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# --- LOGIN ROUTES --- #
+# --- LOGIN --- #
 @app.get("/login", response_class=HTMLResponse)
 def login_get(request: Request):
     return mostrar_login(request)
 
 @app.post("/login", response_class=HTMLResponse)
-def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
+def login_post(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...)
+):
     return procesar_login(request, username, password)
 
 # --- JERARQUÍA JSON --- #
