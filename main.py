@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_303_SEE_OTHER
 from excel_handler import guardar_fila_excel
-from auth import autenticar_usuario, obtener_usuario_desde_cookie
+from auth import mostrar_login, procesar_login, obtener_usuario_desde_cookie
 import shutil
 import os
 
@@ -23,28 +23,14 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# --- LOGIN --- #
+# --- LOGIN ROUTES --- #
 @app.get("/login", response_class=HTMLResponse)
-def mostrar_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request, "mensaje": ""})
-
+def login_get(request: Request):
+    return mostrar_login(request)
 
 @app.post("/login", response_class=HTMLResponse)
-def procesar_login(
-    request: Request,
-    username: str = Form(...),
-    password: str = Form(...)
-):
-    usuario = autenticar_usuario(username, password)
-    if not usuario:
-        return templates.TemplateResponse("login.html", {
-            "request": request,
-            "mensaje": "❌ Usuario o contraseña incorrectos"
-        })
-
-    response = RedirectResponse(url="/", status_code=HTTP_303_SEE_OTHER)
-    response.set_cookie(key="usuario", value=username)
-    return response
+def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
+    return procesar_login(request, username, password)
 
 # --- JERARQUÍA JSON --- #
 @app.get("/jerarquia")
@@ -58,9 +44,11 @@ def obtener_jerarquia():
 # --- FORMULARIO PRINCIPAL --- #
 @app.get("/", response_class=HTMLResponse)
 def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_cookie)):
-    if not usuario:
-        return RedirectResponse("/login", status_code=HTTP_303_SEE_OTHER)
-    return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": "", "usuario": usuario})
+    return templates.TemplateResponse("formulario.html", {
+        "request": request,
+        "mensaje": "",
+        "usuario": usuario
+    })
 
 # --- REGISTRO CON ARCHIVO --- #
 @app.post("/registro", response_class=HTMLResponse)
@@ -86,9 +74,6 @@ async def registrar(
     observation_notes: str = Form(""),
     usuario: str = Depends(obtener_usuario_desde_cookie)
 ):
-    if not usuario:
-        return RedirectResponse("/login", status_code=HTTP_303_SEE_OTHER)
-
     if not protocol_number.strip():
         return templates.TemplateResponse("formulario.html", {
             "request": request,
