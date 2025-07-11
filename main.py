@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, UploadFile, File, Depends
+from fastapi import FastAPI, Request, Form, UploadFile, File, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -28,6 +28,13 @@ app.add_middleware(
 # --- TEMPLATES --- #
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# --- EXCEPCIÓN PERSONALIZADA PARA REDIRECCIÓN --- #
+@app.exception_handler(HTTPException)
+async def manejar_excepciones(request: Request, exc: HTTPException):
+    if exc.status_code == 307 and "Redireccionar" in str(exc.detail):
+        return RedirectResponse(url="/login")
+    raise exc  # otras excepciones siguen su curso
 
 # --- LOGIN --- #
 @app.get("/login", response_class=HTMLResponse)
