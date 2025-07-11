@@ -1,15 +1,17 @@
-from fastapi import FastAPI, Request, Form, UploadFile, File
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form, UploadFile, File, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.status import HTTP_303_SEE_OTHER
 from excel_handler import guardar_fila_excel
+from auth import autenticar_usuario, obtener_usuario_desde_cookie
 import shutil
 import os
 
 app = FastAPI()
 
-# Habilita CORS si lo usas desde frontend externo
+# --- CORS --- #
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,10 +19,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- TEMPLATES --- #
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Ruta del JSON jerárquico
+# --- LOGIN --- #
+@app.get("/login", response_class=HTMLResponse)
+def mostrar_login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "mensaje": ""})
+
+
+@app.post("/login", response_class=HTMLResponse)
+def procesar_login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...)
+):
+    usuario = autenticar_usuario(username, password)
+    if not usuario:
+        return templates.TemplateResponse("login.html", {
+            "request": request,
+            "mensaje": "❌ Usuario o contraseña incorrectos"
+        })
+
+    response = RedirectResponse(url="/", status_code=HTTP_303_SEE_OTHER)
+    response.set_cookie(key="usuario", value=username)
+    return response
+
+# --- JERARQUÍA JSON --- #
 @app.get("/jerarquia")
 def obtener_jerarquia():
     json_path = os.path.join("data", "itemizado_acciona.json")
@@ -29,12 +55,14 @@ def obtener_jerarquia():
     with open(json_path, "r", encoding="utf-8") as f:
         return f.read()
 
-# Página inicial del formulario
+# --- FORMULARIO PRINCIPAL --- #
 @app.get("/", response_class=HTMLResponse)
-def formulario(request: Request):
-    return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": ""})
+def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_cookie)):
+    if not usuario:
+        return RedirectResponse("/login", status_code=HTTP_303_SEE_OTHER)
+    return templates.TemplateResponse("formulario.html", {"request": request, "mensaje": "", "usuario": usuario})
 
-# Registro con carga de archivo Excel
+# --- REGISTRO CON ARCHIVO --- #
 @app.post("/registro", response_class=HTMLResponse)
 async def registrar(
     request: Request,
@@ -56,11 +84,16 @@ async def registrar(
     submission_date_rp: str = Form(""),
     approval_date_rp: str = Form(""),
     observation_notes: str = Form(""),
+    usuario: str = Depends(obtener_usuario_desde_cookie)
 ):
+    if not usuario:
+        return RedirectResponse("/login", status_code=HTTP_303_SEE_OTHER)
+
     if not protocol_number.strip():
         return templates.TemplateResponse("formulario.html", {
             "request": request,
-            "mensaje": "⚠️ Debes ingresar al menos el número de protocolo para registrar."
+            "mensaje": "⚠️ Debes ingresar al menos el número de protocolo para registrar.",
+            "usuario": usuario
         })
 
     # Guardar archivo temporal
@@ -90,10 +123,8 @@ async def registrar(
 
     ok, mensaje = guardar_fila_excel(temp_path, "protocol", fila)
 
-    # Eliminar archivo temporal después de usarlo (opcional)
-    # os.remove(temp_path)
-
     return templates.TemplateResponse("formulario.html", {
         "request": request,
-        "mensaje": mensaje
+        "mensaje": mensaje,
+        "usuario": usuario
     })
