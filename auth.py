@@ -5,6 +5,7 @@ from supabase import create_client
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 import os
+from fastapi import HTTPException, status
 
 # --- Cargar variables del .env --- #
 load_dotenv()
@@ -50,5 +51,5 @@ def procesar_login(request: Request, username: str = Form(...), password: str = 
 def obtener_usuario_desde_cookie(request: Request) -> str:
     username = request.cookies.get("usuario")
     if not username:
-        raise RedirectResponse(url="/login", status_code=303)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="❌ No autenticado. Cookie faltante.")
     return username
