@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+ENV = os.getenv("ENV", "dev")  # dev o prod
+IS_PRODUCTION = ENV == "prod"
 
 # --- Conexión a Supabase --- #
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -34,21 +36,18 @@ def autenticar_usuario(username: str, password: str):
 
     return user
 
-# --- Función para extraer usuario desde cookie --- #
+# --- Función para extraer usuario desde cookie (redirige si no hay login) --- #
 def obtener_usuario_desde_cookie(request: Request) -> str:
     username = request.cookies.get("usuario")
     if not username:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="❌ No autenticado. Cookie faltante."
-        )
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     return username
 
 # --- Mostrar formulario login --- #
 def mostrar_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "mensaje": ""})
 
-# --- Procesar login (no se usa directamente aquí, pero útil si lo quieres desacoplar) --- #
+# --- Procesar login --- #
 def procesar_login(request: Request, username: str = Form(...), password: str = Form(...)):
     usuario = autenticar_usuario(username, password)
     if not usuario:
@@ -57,6 +56,18 @@ def procesar_login(request: Request, username: str = Form(...), password: str = 
             "mensaje": "❌ Usuario o contraseña incorrectos"
         })
 
-    response = RedirectResponse(url="/", status_code=303)
-    response.set_cookie(key="usuario", value=username)
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(
+        key="usuario",
+        value=username,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="Lax"
+    )
+    return response
+
+# --- Logout --- #
+def cerrar_sesion():
+    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    response.delete_cookie("usuario")
     return response
