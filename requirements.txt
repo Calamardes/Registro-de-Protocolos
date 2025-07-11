@@ -3,3 +3,6 @@ uvicorn
 openpyxl
 jinja2
 python-multipart
+python-dotenv
+passlib
+supabase
