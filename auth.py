@@ -36,14 +36,15 @@ def autenticar_usuario(username: str, password: str):
 
     return user
 
-# --- Función para extraer usuario desde cookie (redirige si no hay login) --- #
+# --- Extraer usuario desde cookie o lanzar excepción --- #
 def obtener_usuario_desde_cookie(request: Request) -> str:
     username = request.cookies.get("usuario")
     if not username:
-        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+        # Lanzar excepción que será capturada y redirigida
+        raise HTTPException(status_code=307, detail="Redireccionar al login")
     return username
 
-# --- Mostrar formulario login --- #
+# --- Mostrar login --- #
 def mostrar_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "mensaje": ""})
 
@@ -66,7 +67,7 @@ def procesar_login(request: Request, username: str = Form(...), password: str = 
     )
     return response
 
-# --- Logout --- #
+# --- Cerrar sesión --- #
 def cerrar_sesion():
     response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     response.delete_cookie("usuario")
