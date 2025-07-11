@@ -5,7 +5,13 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_303_SEE_OTHER
 from excel_handler import guardar_fila_excel
-from auth import autenticar_usuario, obtener_usuario_desde_cookie, mostrar_login, procesar_login
+from auth import (
+    autenticar_usuario,
+    obtener_usuario_desde_cookie,
+    mostrar_login,
+    procesar_login,
+    cerrar_sesion
+)
 import shutil
 import os
 
@@ -36,6 +42,11 @@ def login_post(
 ):
     return procesar_login(request, username, password)
 
+# --- LOGOUT --- #
+@app.get("/logout")
+def logout():
+    return cerrar_sesion()
+
 # --- JERARQUÍA JSON --- #
 @app.get("/jerarquia")
 def obtener_jerarquia():
@@ -48,11 +59,13 @@ def obtener_jerarquia():
 # --- FORMULARIO PRINCIPAL --- #
 @app.get("/", response_class=HTMLResponse)
 def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_cookie)):
-    return templates.TemplateResponse("formulario.html", {
+    response = templates.TemplateResponse("formulario.html", {
         "request": request,
         "mensaje": "",
         "usuario": usuario
     })
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 # --- REGISTRO CON ARCHIVO --- #
 @app.post("/registro", response_class=HTMLResponse)
