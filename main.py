@@ -29,12 +29,12 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# --- EXCEPCIÓN PERSONALIZADA PARA REDIRECCIÓN --- #
+# --- Manejo de excepciones --- #
 @app.exception_handler(HTTPException)
 async def manejar_excepciones(request: Request, exc: HTTPException):
     if exc.status_code == 307 and "Redireccionar" in str(exc.detail):
         return RedirectResponse(url="/login")
-    raise exc  # otras excepciones siguen su curso
+    raise exc  # Otros errores se manejan normal
 
 # --- LOGIN --- #
 @app.get("/login", response_class=HTMLResponse)
@@ -53,6 +53,15 @@ def login_post(
 @app.get("/logout")
 def logout():
     return cerrar_sesion()
+
+# --- ENDPOINT DE DEPURACIÓN --- #
+@app.get("/ver-vars")
+def ver_vars():
+    return {
+        "SUPABASE_URL": os.getenv("SUPABASE_URL"),
+        "SUPABASE_KEY": bool(os.getenv("SUPABASE_KEY")),
+        "ENV": os.getenv("ENV")
+    }
 
 # --- JERARQUÍA JSON --- #
 @app.get("/jerarquia")
@@ -105,7 +114,6 @@ async def registrar(
             "usuario": usuario
         })
 
-    # Guardar archivo temporal
     temp_path = f"temp_{archivo_excel.filename}"
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(archivo_excel.file, buffer)
