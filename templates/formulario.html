@@ -10,10 +10,15 @@
             color: #E1E1E1;
             font-family: 'Segoe UI', sans-serif;
             font-size: 15px;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 1rem;
         }
         .form-section {
             background-color: #1e1e2f;
-            padding: 2rem;
+            padding: 1rem;
             border-radius: 10px;
             margin-bottom: 1rem;
         }
@@ -47,18 +52,18 @@
         #tabla-resumen td {
             height: 40px;
         }
+        .scrollable-table {
+            max-height: 500px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
-<div class="container mt-4">
-    <h2 class="mb-4">📑 Registro de Protocolos</h2>
-
-    {% if mensaje %}
-        <div class="alert alert-info">{{ mensaje }}</div>
-    {% endif %}
+<div class="container">
+    <h2 class="mb-3">📑 Registro de Protocolos</h2>
 
     <form method="POST" action="#">
-        <div class="row">
+        <div class="row g-2">
             <!-- Jerarquía -->
             <div class="col-md-4">
                 <div class="form-section">
@@ -78,7 +83,7 @@
             <div class="col-md-8">
                 <div class="form-section">
                     <h4 class="mb-3">Datos del Protocolo</h4>
-                    <div class="row g-2">
+                    <div class="row g-1">
                         <div class="col-md-6">
                             <input class="form-control form-control-sm" name="rp_number" placeholder="Recepción Final">
                             <input class="form-control form-control-sm" name="protocol_number" placeholder="N° Protocolo">
@@ -124,7 +129,7 @@
     <!-- Tabla resumen -->
     <div class="form-section mt-2">
         <h4 class="mb-3">Últimos Protocolos</h4>
-        <div style="max-height: 500px; overflow-y: auto;">
+        <div class="scrollable-table">
             <table class="table table-bordered table-hover table-dark align-middle">
                 <thead class="table-light text-dark">
                     <tr>
@@ -152,24 +157,9 @@
                 <tbody id="tabla-resumen">
                     {% for i in range(10) %}
                     <tr>
-                        <td>--</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        {% for j in range(18) %}
+                        <td>—</td>
+                        {% endfor %}
                         <td class="text-center">
                             <button class="btn btn-outline-info btn-sm" disabled>🔍</button>
                         </td>
