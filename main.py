@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, UploadFile, File, Depends, HTTPException
+from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -12,7 +12,6 @@ from auth import (
     procesar_login,
     cerrar_sesion
 )
-import shutil
 import os
 import json
 
@@ -75,7 +74,6 @@ def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_co
 @app.post("/registro", response_class=HTMLResponse)
 async def registrar(
     request: Request,
-    archivo_excel: UploadFile = File(...),
     nivel1: str = Form(""),
     nivel2: str = Form(""),
     nivel3: str = Form(""),
@@ -86,12 +84,12 @@ async def registrar(
     status: str = Form(""),
     pk_start: str = Form(""),
     pk_end: str = Form(""),
-    work_side: str = Form(""),
     layer: str = Form(""),
+    work_side: str = Form(""),
     thickness_m: str = Form(""),
     tag: str = Form(""),
-    submission_date_rp: str = Form(""),
-    approval_date_rp: str = Form(""),
+    submission_date_pt: str = Form(""),
+    approval_date_pt: str = Form(""),
     observation_notes: str = Form(""),
     usuario: str = Depends(obtener_usuario_desde_cookie)
 ):
@@ -101,10 +99,6 @@ async def registrar(
             "mensaje": "⚠️ Debes ingresar al menos el número de protocolo para registrar.",
             "usuario": usuario
         })
-
-    temp_path = f"temp_{archivo_excel.filename}"
-    with open(temp_path, "wb") as buffer:
-        shutil.copyfileobj(archivo_excel.file, buffer)
 
     fila = {
         "level_1": nivel1 or "-- No Item --",
@@ -121,12 +115,14 @@ async def registrar(
         "layer": layer,
         "thickness_m": thickness_m,
         "tag": tag,
-        "submission_date_rp": submission_date_rp,
-        "approval_date_rp": approval_date_rp,
+        "submission_date_pt": submission_date_pt,
+        "approval_date_pt": approval_date_pt,
         "observation_notes": observation_notes,
     }
 
-    ok, mensaje = guardar_fila_excel(temp_path, "protocol", fila)
+    ruta_excel = "data/topografia_acciona_input_data - copia.xlsx"
+    hoja = "protocol"
+    ok, mensaje = guardar_fila_excel(ruta_excel, hoja, fila)
 
     return templates.TemplateResponse("formulario.html", {
         "request": request,
