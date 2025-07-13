@@ -54,7 +54,7 @@
             height: 40px;
         }
         .scrollable-table {
-            max-height: 440px;
+            max-height: 400px;
             overflow-y: auto;
         }
         table th, table td {
@@ -88,4 +88,45 @@
     </style>
 </head>
 <body>
-<!-- El resto del contenido HTML permanece igual -->
+<div class="container">
+    <h2 class="mb-4">📑 Registro de Protocolos</h2>
+    <div class="form-section">
+        <h4>Resumen de Protocolos</h4>
+        <div class="scrollable-table">
+            <table id="tabla-resumen" class="table table-bordered table-hover table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>RP</th>
+                        <th>Protocolo</th>
+                        <th>Estado</th>
+                        <th>Nivel 1</th>
+                        <th>Nivel 2</th>
+                        <th>Nivel 3</th>
+                        <th>Nivel 4</th>
+                        <th>Nivel 5</th>
+                        <th>PK Inicio</th>
+                        <th>PK Fin</th>
+                        <th>Capa</th>
+                        <th>Lado</th>
+                        <th>Espesor</th>
+                        <th>TAG</th>
+                        <th>Envío</th>
+                        <th>Aprobación</th>
+                        <th>Obs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 10 filas vacías para emular Excel -->
+                    {% for i in range(10) %}
+                    <tr>
+                        <td colspan="18">&nbsp;</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
