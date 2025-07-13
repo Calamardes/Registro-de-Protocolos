@@ -1,54 +1,64 @@
 </form>
 
 <!-- Tabla resumen -->
-<div class="form-section mt-4">
-    <h4>Registros simulados</h4>
-    <table class="table table-dark table-striped table-hover">
-        <thead>
-            <tr>
-                <th>N° Protocolo</th>
-                <th>TAG</th>
-                <th>PK Inicio</th>
-                <th>PK Fin</th>
-                <th>Estado</th>
-                <th>Fecha Envío</th>
-                <th>Fecha Aprobación</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>00001</td>
-                <td>RETX-PK17</td>
-                <td>17+200</td>
-                <td>17+400</td>
-                <td><span class="badge bg-success">Aprobado</span></td>
-                <td>2025-07-01</td>
-                <td>2025-07-03</td>
-                <td><button class="btn btn-sm btn-outline-info">🔍 Ver</button></td>
-            </tr>
-            <tr>
-                <td>00002</td>
-                <td>RETX-PK18</td>
-                <td>17+400</td>
-                <td>17+600</td>
-                <td><span class="badge bg-warning text-dark">Pendiente</span></td>
-                <td>2025-07-04</td>
-                <td>-</td>
-                <td><button class="btn btn-sm btn-outline-info">🔍 Ver</button></td>
-            </tr>
-            <tr>
-                <td>00003</td>
-                <td>RETX-PK19</td>
-                <td>17+600</td>
-                <td>17+800</td>
-                <td><span class="badge bg-danger">Rechazado</span></td>
-                <td>2025-07-05</td>
-                <td>2025-07-06</td>
-                <td><button class="btn btn-sm btn-outline-info">🔍 Ver</button></td>
-            </tr>
-        </tbody>
-    </table>
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="form-section">
+            <h4 class="mb-3">Resumen de Protocolos</h4>
+            <table class="table table-bordered table-hover table-dark align-middle">
+                <thead class="table-light text-dark">
+                    <tr>
+                        <th>N° Protocolo</th>
+                        <th>TAG</th>
+                        <th>PK Inicio</th>
+                        <th>PK Fin</th>
+                        <th>Estado</th>
+                        <th>Fecha Envío</th>
+                        <th>Fecha Aprobación</th>
+                        <th style="text-align: center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>00001</td>
+                        <td>RETX-PK17</td>
+                        <td>17+200</td>
+                        <td>17+400</td>
+                        <td><span class="badge bg-success">Aprobado</span></td>
+                        <td>2025-07-01</td>
+                        <td>2025-07-03</td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-info btn-sm">🔍 Ver</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>00002</td>
+                        <td>RETX-PK18</td>
+                        <td>17+400</td>
+                        <td>17+600</td>
+                        <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                        <td>2025-07-04</td>
+                        <td>-</td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-info btn-sm">🔍 Ver</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>00003</td>
+                        <td>RETX-PK19</td>
+                        <td>17+600</td>
+                        <td>17+800</td>
+                        <td><span class="badge bg-danger">Rechazado</span></td>
+                        <td>2025-07-05</td>
+                        <td>2025-07-06</td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-info btn-sm">🔍 Ver</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 </div>
 
