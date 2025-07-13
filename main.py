@@ -14,7 +14,9 @@ from auth import (
 )
 import shutil
 import os
+import json  # <-- NUEVO: para retornar JSON válido en /jerarquia
 
+# --- FastAPI Init --- #
 app = FastAPI()
 
 # --- CORS --- #
@@ -25,36 +27,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- TEMPLATES --- #
+# --- TEMPLATES Y ESTÁTICOS --- #
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# --- Manejo de excepciones --- #
+# --- EXCEPCIÓN GLOBAL (redirección si no logueado) --- #
 @app.exception_handler(HTTPException)
 async def manejar_excepciones(request: Request, exc: HTTPException):
     if exc.status_code == 307 and "Redireccionar" in str(exc.detail):
         return RedirectResponse(url="/login")
-    raise exc  # Otros errores se manejan normal
+    raise exc
 
-# --- LOGIN --- #
+# ---------------- LOGIN ---------------- #
 @app.get("/login", response_class=HTMLResponse)
 def login_get(request: Request):
     return mostrar_login(request)
 
 @app.post("/login", response_class=HTMLResponse)
-def login_post(
-    request: Request,
-    username: str = Form(...),
-    password: str = Form(...)
-):
+def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
     return procesar_login(request, username, password)
 
-# --- LOGOUT --- #
 @app.get("/logout")
 def logout():
     return cerrar_sesion()
 
-# --- ENDPOINT DE DEPURACIÓN --- #
+# ---------------- DEPURACIÓN ---------------- #
 @app.get("/ver-vars")
 def ver_vars():
     return {
@@ -63,16 +60,16 @@ def ver_vars():
         "ENV": os.getenv("ENV")
     }
 
-# --- JERARQUÍA JSON --- #
+# ---------------- ENDPOINT JSON JERÁRQUICO ---------------- #
 @app.get("/jerarquia")
 def obtener_jerarquia():
     json_path = os.path.join("data", "itemizado_acciona.json")
     if not os.path.exists(json_path):
         return {"error": "Archivo JSON no encontrado"}
     with open(json_path, "r", encoding="utf-8") as f:
-        return f.read()
+        return json.load(f)  # <-- CORREGIDO: se retorna JSON, no string
 
-# --- FORMULARIO PRINCIPAL --- #
+# ---------------- FORMULARIO PRINCIPAL ---------------- #
 @app.get("/", response_class=HTMLResponse)
 def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_cookie)):
     response = templates.TemplateResponse("formulario.html", {
@@ -83,7 +80,7 @@ def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_co
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
-# --- REGISTRO CON ARCHIVO --- #
+# ---------------- REGISTRO DE FORMULARIO ---------------- #
 @app.post("/registro", response_class=HTMLResponse)
 async def registrar(
     request: Request,
