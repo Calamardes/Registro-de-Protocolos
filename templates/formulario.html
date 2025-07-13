@@ -40,6 +40,13 @@
         label.form-label {
             font-size: 14px;
         }
+        .table-dark td, .table-dark th {
+            text-align: center;
+            vertical-align: middle;
+        }
+        #tabla-resumen td {
+            height: 40px;
+        }
     </style>
 </head>
 <body>
@@ -143,7 +150,31 @@
                     </tr>
                 </thead>
                 <tbody id="tabla-resumen">
-                    <!-- Datos se insertarán con JS -->
+                    {% for i in range(10) %}
+                    <tr>
+                        <td>--</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-center">
+                            <button class="btn btn-outline-info btn-sm" disabled>🔍</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
