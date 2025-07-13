@@ -90,6 +90,21 @@
 <body>
 <div class="container">
     <h2 class="mb-4">📑 Registro de Protocolos</h2>
+
+    <div class="form-section mb-4">
+        <h4>Selección Jerárquica</h4>
+        <div class="row">
+            {% for i in range(1, 6) %}
+            <div class="col-md-2">
+                <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
+                <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                    <option value="">-- Seleccionar --</option>
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
     <div class="form-section">
         <h4>Resumen de Protocolos</h4>
         <div class="scrollable-table">
@@ -119,24 +134,7 @@
                 <tbody>
                     {% for i in range(10) %}
                     <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
+                        {% for j in range(18) %}<td>&nbsp;</td>{% endfor %}
                     </tr>
                     {% endfor %}
                 </tbody>
