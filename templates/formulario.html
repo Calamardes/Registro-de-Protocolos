@@ -33,13 +33,9 @@
 </head>
 <body>
 <div class="container mt-4">
-    <h2 class="mb-4">📑 Registro de Protocolos</h2>
+    <h2 class="mb-4">📑 Vista de Formulario - GeoProtocolos</h2>
 
-    {% if mensaje %}
-        <div class="alert alert-info">{{ mensaje }}</div>
-    {% endif %}
-
-    <form method="POST" action="/registro">
+    <form>
         <div class="row">
             <!-- Jerarquía -->
             <div class="col-md-4">
@@ -56,15 +52,14 @@
                 </div>
             </div>
 
-            <!-- Campos manuales -->
+            <!-- Campos visuales -->
             <div class="col-md-8">
                 <div class="form-section">
                     <h4>Datos del Protocolo</h4>
-
                     <div class="row">
                         <div class="col-md-6">
                             <input class="form-control mb-3" name="rp_number" placeholder="Número Recepción Final">
-                            <input class="form-control mb-3" name="protocol_number" placeholder="Número Protocolo" required>
+                            <input class="form-control mb-3" name="protocol_number" placeholder="Número Protocolo">
                             <select class="form-select mb-3" name="status">
                                 <option value="">Estado</option>
                                 <option value="aprobado">Aprobado</option>
@@ -86,7 +81,6 @@
                             <input class="form-control mb-3" name="tag" placeholder="TAG">
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6">
                             <label class="form-label">Fecha de Envío</label>
@@ -99,8 +93,6 @@
                             <textarea class="form-control mb-3" name="observation_notes" rows="5"></textarea>
                         </div>
                     </div>
-
-                    <button type="submit" class="btn btn-primary w-100">Guardar Registro</button>
                 </div>
             </div>
         </div>
