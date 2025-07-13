@@ -1,91 +1,144 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>GeoProtocolos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
-            color: #212529;
+        * {
             font-family: 'Inter', sans-serif;
-            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-size: 14px;
             margin: 0;
             padding: 0;
         }
-        .container {
-            padding: 1rem;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        .form-section {
-            background-color: #ffffff;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
-            border: 1px solid #dee2e6;
-        }
-        .form-control, .form-select {
-            background-color: #ffffff;
-            color: #212529;
-            border: 1px solid #ced4da;
-            font-size: 14px;
-            padding: 0.5rem 0.75rem;
-        }
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-            border-color: #80bdff;
-        }
+
         h2 {
             font-size: 24px;
-            color: #0d6efd;
             font-weight: 600;
+            color: #0ea5e9;
         }
+
         h4 {
             font-size: 18px;
-            color: #495057;
             font-weight: 600;
+            color: #334155;
         }
+
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .form-section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+
         label.form-label {
+            font-weight: 500;
+            color: #475569;
             font-size: 13px;
-            color: #495057;
-            margin-bottom: 0.25rem;
         }
+
+        .form-control,
+        .form-select {
+            font-size: 13px;
+            padding: 6px 10px;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
+
         .scrollable-table {
             max-height: 400px;
             overflow-y: auto;
         }
-        table th, table td {
-            font-size: 13px;
-            padding: 0.4rem;
+
+        table.table {
+            margin: 0;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        table th,
+        table td {
+            font-size: 12.5px;
+            padding: 6px;
             text-align: center;
             vertical-align: middle;
+            white-space: nowrap;
         }
-        .table thead {
-            background-color: #e9ecef;
-            color: #212529;
+
+        table thead th {
+            background-color: #e2e8f0;
             position: sticky;
             top: 0;
-            z-index: 1;
+            z-index: 2;
+            color: #1e293b;
+            font-weight: 600;
         }
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
+
+        .btn-database {
+            background-color: #0ea5e9;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-database:hover {
+            background-color: #0284c7;
+        }
+
+        .btn-action {
+            padding: 3px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background-color: #facc15;
+            color: #1f2937;
+        }
+
+        .btn-delete {
+            background-color: #ef4444;
             color: #fff;
         }
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
+
+        textarea.form-control {
+            resize: vertical;
         }
-        .btn-outline-secondary {
-            border-color: #6c757d;
-            color: #6c757d;
-        }
-        .btn-outline-secondary:hover {
-            background-color: #6c757d;
-            color: #fff;
+
+        @media (max-width: 768px) {
+            .col-md-3, .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -93,11 +146,11 @@
 <div class="container">
     <h2 class="mb-4">Registro de Protocolos</h2>
 
-    <div class="form-section mb-4">
-        <h4>Selección Jerárquica</h4>
+    <div class="form-section">
+        <h4 class="mb-3">Selección Jerárquica</h4>
         <div class="row g-2">
             {% for i in range(1, 6) %}
-            <div class="col-md-2">
+            <div class="col-md-2 col-sm-6">
                 <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
                 <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
                     <option value="">-- Seleccionar --</option>
@@ -107,9 +160,9 @@
         </div>
     </div>
 
-    <div class="form-section mb-4">
-        <h4>Datos del Protocolo</h4>
-        <div class="row g-3">
+    <div class="form-section">
+        <h4 class="mb-3">Datos del Protocolo</h4>
+        <div class="row g-2">
             <div class="col-md-3"><label class="form-label">RP</label><input type="text" class="form-control"></div>
             <div class="col-md-3"><label class="form-label">Protocolo</label><input type="text" class="form-control"></div>
             <div class="col-md-3"><label class="form-label">Estado</label><input type="text" class="form-control"></div>
@@ -123,24 +176,33 @@
             <div class="col-md-3"><label class="form-label">Fecha Aprobación</label><input type="date" class="form-control"></div>
             <div class="col-md-6"><label class="form-label">Observaciones</label><textarea class="form-control" rows="2"></textarea></div>
         </div>
+        <div class="mt-3 text-end">
+            <button class="btn btn-database">💾 Consolidar</button>
+        </div>
     </div>
 
     <div class="form-section">
-        <h4>Resumen de Protocolos</h4>
+        <h4 class="mb-3">Resumen de Protocolos</h4>
         <div class="scrollable-table">
-            <table id="tabla-resumen" class="table table-bordered table-hover">
+            <table class="table table-bordered table-hover table-sm">
                 <thead>
                     <tr>
                         <th>ID</th><th>RP</th><th>Protocolo</th><th>Estado</th><th>Nivel 1</th><th>Nivel 2</th>
                         <th>Nivel 3</th><th>Nivel 4</th><th>Nivel 5</th><th>PK Inicio</th><th>PK Fin</th>
                         <th>Capa</th><th>Lado</th><th>Espesor</th><th>TAG</th>
-                        <th>Envío</th><th>Aprobación</th><th>Obs</th>
+                        <th>Envío</th><th>Aprobación</th><th>Obs</th><th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for i in range(10) %}
                     <tr>
-                        {% for j in range(18) %}<td>&nbsp;</td>{% endfor %}
+                        {% for j in range(18) %}
+                        <td contenteditable="true">&nbsp;</td>
+                        {% endfor %}
+                        <td>
+                            <button class="btn btn-edit btn-action">✏️</button>
+                            <button class="btn btn-delete btn-action">🗑️</button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -150,3 +212,4 @@
 </div>
 </body>
 </html>
+```
