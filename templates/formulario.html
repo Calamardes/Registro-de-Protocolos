@@ -46,20 +46,15 @@
             font-size: 13px;
             color: #ccc;
         }
-        #tabla-resumen td, #tabla-resumen th {
-            text-align: center;
-            vertical-align: middle;
-        }
-        #tabla-resumen td {
-            height: 40px;
-        }
         .scrollable-table {
             max-height: 400px;
             overflow-y: auto;
         }
         table th, table td {
             font-size: 13px;
-            padding: 0.4rem;
+            padding: 0.3rem;
+            text-align: center;
+            vertical-align: middle;
         }
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #2a2a3a;
@@ -105,30 +100,34 @@
         </div>
     </div>
 
+    <div class="form-section mb-4">
+        <h4>Datos del Protocolo</h4>
+        <div class="row">
+            <div class="col-md-3"><label class="form-label">RP</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Protocolo</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Estado</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">PK Inicio</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">PK Fin</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Capa</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Lado</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Espesor</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">TAG</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Fecha Envío</label><input type="date" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Fecha Aprobación</label><input type="date" class="form-control"></div>
+            <div class="col-md-6"><label class="form-label">Observaciones</label><textarea class="form-control" rows="2"></textarea></div>
+        </div>
+    </div>
+
     <div class="form-section">
         <h4>Resumen de Protocolos</h4>
         <div class="scrollable-table">
             <table id="tabla-resumen" class="table table-bordered table-hover table-striped table-dark">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>RP</th>
-                        <th>Protocolo</th>
-                        <th>Estado</th>
-                        <th>Nivel 1</th>
-                        <th>Nivel 2</th>
-                        <th>Nivel 3</th>
-                        <th>Nivel 4</th>
-                        <th>Nivel 5</th>
-                        <th>PK Inicio</th>
-                        <th>PK Fin</th>
-                        <th>Capa</th>
-                        <th>Lado</th>
-                        <th>Espesor</th>
-                        <th>TAG</th>
-                        <th>Envío</th>
-                        <th>Aprobación</th>
-                        <th>Obs</th>
+                        <th>ID</th><th>RP</th><th>Protocolo</th><th>Estado</th><th>Nivel 1</th><th>Nivel 2</th>
+                        <th>Nivel 3</th><th>Nivel 4</th><th>Nivel 5</th><th>PK Inicio</th><th>PK Fin</th>
+                        <th>Capa</th><th>Lado</th><th>Espesor</th><th>TAG</th>
+                        <th>Envío</th><th>Aprobación</th><th>Obs</th>
                     </tr>
                 </thead>
                 <tbody>
