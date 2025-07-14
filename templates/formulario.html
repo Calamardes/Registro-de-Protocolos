@@ -3,243 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <title>GeoProtocolos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #12121b;
-            color: #E1E1E1;
-            font-family: 'Segoe UI', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0ea5e9;
+        }
+
+        h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 20px;
             overflow-x: hidden;
         }
+
         .form-section {
-            background-color: #1e1e2f;
-            padding: 1.5rem;
+            background-color: #ffffff;
             border-radius: 10px;
-            margin-bottom: 1rem;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
         }
-        .form-control, .form-select, textarea {
-            background-color: #2c2c3e;
-            color: #E1E1E1;
-            border: none;
-            height: 42px;
+
+        label.form-label {
+            font-weight: 500;
+            color: #475569;
+            font-size: 13px;
         }
-        .form-control::placeholder {
-            color: #aaa;
+
+        .form-control,
+        .form-select {
+            font-size: 13px;
+            padding: 6px 10px;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
         }
-        .form-control:focus, .form-select:focus, textarea:focus {
-            box-shadow: 0 0 0 0.2rem #3f6fff77;
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
         }
-        h2, h4 {
-            color: #F0F0F0;
-        }
-        .table-container {
-            max-height: 360px;
+
+        .scrollable-table {
+            max-height: 400px;
             overflow-y: auto;
         }
-        .btn-consolidar {
-            background-color: #3f6fff;
-            border: none;
-            color: white;
+
+        table.table {
+            margin: 0;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
-        .placeholder-option {
-            color: #aaa;
+
+        table th,
+        table td {
+            font-size: 12.5px;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        table thead th {
+            background-color: #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .btn-database {
+            background-color: #0ea5e9;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-database:hover {
+            background-color: #0284c7;
+        }
+
+        .btn-action {
+            padding: 3px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background-color: #facc15;
+            color: #1f2937;
+        }
+
+        .btn-delete {
+            background-color: #ef4444;
+            color: #fff;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .col-md-3, .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container mt-4">
-    <h2 class="mb-4">📑 Registro de Protocolos</h2>
+<div class="container">
+    <h2 class="mb-4">Registro de Protocolos</h2>
 
-    <form id="formulario-protocolo">
-        <div class="row">
-            <!-- Jerarquía -->
-            <div class="col-md-4">
-                <div class="form-section">
-                    <h4>Jerarquía</h4>
-                    {% for i in range(1, 6) %}
-                    <div class="mb-3">
-                        <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
-                        <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
-                            <option value="" class="placeholder-option">Seleccione Nivel {{ i }}</option>
-                        </select>
-                    </div>
-                    {% endfor %}
-                </div>
+    <div class="form-section">
+        <h4 class="mb-3">Selección Jerárquica</h4>
+        <div class="row g-2">
+            {% for i in range(1, 6) %}
+            <div class="col-md-2 col-sm-6">
+                <label for="nivel{{ i }}" class="form-label">Nivel {{ i }}</label>
+                <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                    <option value="">-- Seleccionar --</option>
+                </select>
             </div>
-
-            <!-- Datos de Protocolo -->
-            <div class="col-md-8">
-                <div class="form-section">
-                    <h4>Datos del Protocolo</h4>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input class="form-control mb-3" name="rp_number" placeholder="N° Recepción Final">
-                            <input class="form-control mb-3" name="protocol_number" placeholder="N° Protocolo">
-                            <select class="form-select mb-3" name="status">
-                                <option value="" class="placeholder-option">Estado</option>
-                                <option value="aprobado">Aprobado</option>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="rechazado">Rechazado</option>
-                            </select>
-                            <div class="row">
-                                <div class="col">
-                                    <input class="form-control mb-3" name="pk_start" placeholder="PK Inicio">
-                                </div>
-                                <div class="col">
-                                    <input class="form-control mb-3" name="pk_end" placeholder="PK Fin">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <select class="form-select mb-3" name="work_side">
-                                <option value="" class="placeholder-option">Lado de Trabajo</option>
-                                <option value="izquierdo">Izquierdo</option>
-                                <option value="derecho">Derecho</option>
-                                <option value="completa">Completa</option>
-                            </select>
-                            <input class="form-control mb-3" name="layer" placeholder="N° Capa">
-                            <input class="form-control mb-3" name="thickness_m" placeholder="Espesor (m)">
-                            <input class="form-control mb-3" name="tag" placeholder="TAG">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha Envío</label>
-                            <input type="date" class="form-control mb-3" name="submission_date_pt">
-                            <label class="form-label">Fecha Aprobación</label>
-                            <input type="date" class="form-control mb-3" name="approval_date_pt">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Observaciones</label>
-                            <textarea class="form-control mb-3" name="observation_notes" rows="4" style="height: 90px;"></textarea>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-consolidar w-100" onclick="registrarFila()">🧩 Consolidar Registro</button>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-    </form>
+    </div>
 
-    <!-- Tabla resumen -->
+    <div class="form-section">
+        <h4 class="mb-3">Datos del Protocolo</h4>
+        <div class="row g-2">
+            <div class="col-md-3"><label class="form-label">RP</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Protocolo</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Estado</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">PK Inicio</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">PK Fin</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Capa</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Lado</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Espesor</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">TAG</label><input type="text" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Fecha Envío</label><input type="date" class="form-control"></div>
+            <div class="col-md-3"><label class="form-label">Fecha Aprobación</label><input type="date" class="form-control"></div>
+            <div class="col-md-6"><label class="form-label">Observaciones</label><textarea class="form-control" rows="2"></textarea></div>
+        </div>
+        <div class="mt-3 text-end">
+            <button class="btn btn-database">💾 Consolidar</button>
+        </div>
+    </div>
+
     <div class="form-section">
         <h4 class="mb-3">Resumen de Protocolos</h4>
-        <div class="table-container">
-            <table class="table table-bordered table-hover table-dark align-middle" id="tablaResumen">
-                <thead class="table-light text-dark">
+        <div class="scrollable-table">
+            <table class="table table-bordered table-hover table-sm">
+                <thead>
                     <tr>
-                        <th>N° Protocolo</th>
-                        <th>TAG</th>
-                        <th>PK Inicio</th>
-                        <th>PK Fin</th>
-                        <th>Estado</th>
-                        <th>Fecha Envío</th>
-                        <th>Fecha Aprobación</th>
-                        <th style="text-align: center">Acciones</th>
+                        <th>ID</th><th>RP</th><th>Protocolo</th><th>Estado</th><th>Nivel 1</th><th>Nivel 2</th>
+                        <th>Nivel 3</th><th>Nivel 4</th><th>Nivel 5</th><th>PK Inicio</th><th>PK Fin</th>
+                        <th>Capa</th><th>Lado</th><th>Espesor</th><th>TAG</th>
+                        <th>Envío</th><th>Aprobación</th><th>Obs</th><th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for i in range(10) %}
+                    <tr>
+                        {% for j in range(18) %}
+                        <td contenteditable="true">&nbsp;</td>
+                        {% endfor %}
+                        <td>
+                            <button class="btn btn-edit btn-action">✏️</button>
+                            <button class="btn btn-delete btn-action">🗑️</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-
-<script>
-    let jerarquia = {};
-
-    async function cargarJerarquia() {
-        const response = await fetch("/jerarquia");
-        jerarquia = await response.json();
-        poblarSelect(jerarquia, 1);
-    }
-
-    function poblarSelect(data, nivel) {
-        const select = document.getElementById(`nivel${nivel}`);
-        select.innerHTML = '<option value="" class="placeholder-option">Seleccione Nivel ' + nivel + '</option>';
-        for (const codigo in data) {
-            const descripcion = data[codigo]?.descripcion || "";
-            const option = document.createElement("option");
-            option.value = `${codigo} ${descripcion}`;
-            option.textContent = `${codigo} ${descripcion}`;
-            select.appendChild(option);
-        }
-        for (let i = nivel + 1; i <= 5; i++) {
-            document.getElementById(`nivel${i}`).innerHTML = '<option value="" class="placeholder-option">Seleccione Nivel ' + i + '</option>';
-        }
-    }
-
-    function obtenerRutaHasta(nivel) {
-        let ruta = [];
-        for (let i = 1; i <= nivel; i++) {
-            let val = document.getElementById(`nivel${i}`).value;
-            if (val && !val.startsWith("Sin_Item")) ruta.push(val.split(" ")[0]);
-        }
-        return ruta;
-    }
-
-    function buscarSubitems(ruta) {
-        let actual = jerarquia;
-        for (let cod of ruta) {
-            actual = actual[cod]?.subitems || {};
-        }
-        return actual;
-    }
-
-    function setupEventos() {
-        for (let nivel = 1; nivel < 5; nivel++) {
-            const select = document.getElementById(`nivel${nivel}`);
-            select.addEventListener("change", () => {
-                const ruta = obtenerRutaHasta(nivel);
-                const subitems = buscarSubitems(ruta);
-                poblarSelect(subitems, nivel + 1);
-            });
-        }
-    }
-
-    function registrarFila() {
-        const form = document.getElementById('formulario-protocolo');
-        const data = new FormData(form);
-
-        const protocolo = data.get("protocol_number").trim();
-        const rp = data.get("rp_number").trim();
-        const estado = data.get("status");
-        const envio = data.get("submission_date_pt");
-        const aprobacion = data.get("approval_date_pt");
-
-        const nivel1 = data.get("nivel1");
-        if (!(protocolo || rp)) {
-            alert("Debe ingresar al menos N° de Protocolo o N° de RP");
-            return;
-        }
-        if (!estado || !envio) {
-            alert("Debe ingresar Estado y Fecha de Envío");
-            return;
-        }
-        if (!nivel1) {
-            alert("Debe completar al menos el Nivel 1 de jerarquía");
-            return;
-        }
-
-        const fila = document.createElement("tr");
-        fila.innerHTML = `
-            <td>${protocolo}</td>
-            <td>${data.get("tag")}</td>
-            <td>${data.get("pk_start")}</td>
-            <td>${data.get("pk_end")}</td>
-            <td><span class="badge bg-${estado === "aprobado" ? "success" : estado === "pendiente" ? "warning text-dark" : "danger"}">${estado}</span></td>
-            <td>${envio}</td>
-            <td>${aprobacion || "-"}</td>
-            <td class="text-center"><button class="btn btn-outline-info btn-sm">🔍 Ver</button></td>
-        `;
-
-        const tbody = document.querySelector("#tablaResumen tbody");
-        if (tbody.children.length >= 10) tbody.removeChild(tbody.firstChild);
-        tbody.appendChild(fila);
-        form.reset();
-    }
-
-    cargarJerarquia();
-    setupEventos();
-</script>
 </body>
 </html>
