@@ -86,7 +86,7 @@
 <body>
 <div class="container">
     <h2 class="mb-3">Registro de Protocolos</h2>
-    <form method="POST" action="/registro">
+    <form id="registro-form">
         <div class="row g-3 mb-3">
             <div class="col-md-4">
                 <div class="form-section h-100">
@@ -107,10 +107,10 @@
                 <div class="form-section">
                     <h4>Datos del Protocolo</h4>
                     <div class="row g-2">
-                        <div class="col-md-3"><input type="text" name="rp_number" class="form-control" placeholder="RP"></div>
-                        <div class="col-md-3"><input type="text" name="protocol_number" class="form-control" placeholder="Protocolo"></div>
+                        <div class="col-md-3"><input type="text" name="rp_number" class="form-control" placeholder="RP" required></div>
+                        <div class="col-md-3"><input type="text" name="protocol_number" class="form-control" placeholder="Protocolo" required></div>
                         <div class="col-md-3">
-                            <select name="status" class="form-select">
+                            <select name="status" class="form-select" required>
                                 <option value="" disabled selected>Estado</option>
                                 <option value="Aprobado">Aprobado</option>
                                 <option value="Pendiente">Pendiente</option>
@@ -159,7 +159,7 @@
                         <th>Envío</th><th>Aprobación</th><th>Obs</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody-resumen">
                     {% for i in range(10) %}
                     <tr>
                         {% for j in range(18) %}<td>&nbsp;</td>{% endfor %}
@@ -173,6 +173,7 @@
 
 <script>
     let jerarquia = {};
+    let contadorID = 1;
 
     async function cargarJerarquia() {
         const response = await fetch("/jerarquia");
@@ -183,7 +184,6 @@
     function poblarSelect(data, nivel) {
         const select = document.getElementById(`nivel${nivel}`);
         select.innerHTML = '';
-
         const placeholder = document.createElement("option");
         placeholder.disabled = true;
         placeholder.selected = true;
@@ -246,6 +246,42 @@
             });
         }
     }
+
+    document.getElementById("registro-form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+
+        const fila = document.createElement("tr");
+        const celdas = [
+            contadorID++,
+            formData.get("rp_number"),
+            formData.get("protocol_number"),
+            formData.get("status"),
+            formData.get("nivel1"),
+            formData.get("nivel2"),
+            formData.get("nivel3"),
+            formData.get("nivel4"),
+            formData.get("nivel5"),
+            formData.get("pk_start"),
+            formData.get("pk_end"),
+            formData.get("layer"),
+            formData.get("work_side"),
+            formData.get("thickness_m"),
+            formData.get("tag"),
+            formData.get("submission_date_pt"),
+            formData.get("approval_date_pt"),
+            formData.get("observation_notes")
+        ];
+
+        for (let valor of celdas) {
+            const td = document.createElement("td");
+            td.textContent = valor || "";
+            fila.appendChild(td);
+        }
+
+        document.getElementById("tbody-resumen").appendChild(fila);
+        this.reset();
+    });
 
     cargarJerarquia();
     setupEventos();
