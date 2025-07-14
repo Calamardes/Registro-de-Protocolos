@@ -91,43 +91,47 @@
 <body>
 <div class="container">
     <h2 class="mb-3">Registro de Protocolos</h2>
-
-    <div class="row g-3 mb-3">
-        <div class="col-md-4">
-            <div class="form-section h-100">
-                <h4>Selección Jerárquica</h4>
-                <div class="row g-2">
-                    {% for i in range(1, 6) %}
-                    <div class="col-12">
-                        <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
-                            <option value="">Nivel {{ i }}</option>
-                        </select>
+    <form method="POST" action="/registro">
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="form-section h-100">
+                    <h4>Selección Jerárquica</h4>
+                    <div class="row g-2">
+                        {% for i in range(1, 6) %}
+                        <div class="col-12">
+                            <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                                <option value="">Nivel {{ i }}</option>
+                            </select>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-8">
-            <div class="form-section">
-                <h4>Datos del Protocolo</h4>
-                <div class="row g-2">
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="RP"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="Protocolo"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="Estado"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="PK Inicio"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="PK Fin"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="Capa"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="Lado"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="Espesor"></div>
-                    <div class="col-md-3"><input type="text" class="form-control" placeholder="TAG"></div>
-                    <div class="col-md-3"><input type="date" class="form-control" placeholder="Fecha Envío"></div>
-                    <div class="col-md-3"><input type="date" class="form-control" placeholder="Fecha Aprobación"></div>
-                    <div class="col-md-6"><textarea class="form-control" rows="2" placeholder="Observaciones"></textarea></div>
+            <div class="col-md-8">
+                <div class="form-section">
+                    <h4>Datos del Protocolo</h4>
+                    <div class="row g-2">
+                        <div class="col-md-3"><input type="text" name="rp_number" class="form-control" placeholder="RP"></div>
+                        <div class="col-md-3"><input type="text" name="protocol_number" class="form-control" placeholder="Protocolo"></div>
+                        <div class="col-md-3"><input type="text" name="status" class="form-control" placeholder="Estado"></div>
+                        <div class="col-md-3"><input type="text" name="pk_start" class="form-control" placeholder="PK Inicio"></div>
+                        <div class="col-md-3"><input type="text" name="pk_end" class="form-control" placeholder="PK Fin"></div>
+                        <div class="col-md-3"><input type="text" name="layer" class="form-control" placeholder="Capa"></div>
+                        <div class="col-md-3"><input type="text" name="work_side" class="form-control" placeholder="Lado"></div>
+                        <div class="col-md-3"><input type="text" name="thickness_m" class="form-control" placeholder="Espesor"></div>
+                        <div class="col-md-3"><input type="text" name="tag" class="form-control" placeholder="TAG"></div>
+                        <div class="col-md-3"><input type="date" name="submission_date_pt" class="form-control" placeholder="Fecha Envío"></div>
+                        <div class="col-md-3"><input type="date" name="approval_date_pt" class="form-control" placeholder="Fecha Aprobación"></div>
+                        <div class="col-md-6"><textarea name="observation_notes" class="form-control" rows="2" placeholder="Observaciones"></textarea></div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">🧩 Consolidar Registro</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <div class="form-section">
         <h4>Resumen de Protocolos</h4>
@@ -152,5 +156,69 @@
         </div>
     </div>
 </div>
+
+<script>
+    let jerarquia = {};
+
+    async function cargarJerarquia() {
+        const response = await fetch("/jerarquia");
+        jerarquia = await response.json();
+        poblarSelect(jerarquia, 1);
+    }
+
+    function poblarSelect(data, nivel) {
+        const select = document.getElementById(`nivel${nivel}`);
+        select.innerHTML = '<option value="">-- Seleccionar --</option>';
+
+        for (const codigo in data) {
+            const descripcion = data[codigo]?.descripcion || "";
+            const option = document.createElement("option");
+            option.value = `${codigo} ${descripcion}`;
+            option.textContent = `${codigo} ${descripcion}`;
+            select.appendChild(option);
+        }
+
+        const sinItem = document.createElement("option");
+        sinItem.value = `Sin_Item_N${nivel}`;
+        sinItem.textContent = "-- No Item --";
+        select.appendChild(sinItem);
+
+        for (let i = nivel + 1; i <= 5; i++) {
+            const nextSelect = document.getElementById(`nivel${i}`);
+            nextSelect.innerHTML = '<option value="">-- Seleccionar --</option><option value="Sin_Item_N' + i + '">-- No Item --</option>';
+        }
+    }
+
+    function obtenerRutaHasta(nivel) {
+        let ruta = [];
+        for (let i = 1; i <= nivel; i++) {
+            let val = document.getElementById(`nivel${i}`).value;
+            if (val && !val.startsWith("Sin_Item")) ruta.push(val.split(" ")[0]);
+        }
+        return ruta;
+    }
+
+    function buscarSubitems(ruta) {
+        let actual = jerarquia;
+        for (let cod of ruta) {
+            actual = actual[cod]?.subitems || {};
+        }
+        return actual;
+    }
+
+    function setupEventos() {
+        for (let nivel = 1; nivel < 5; nivel++) {
+            const select = document.getElementById(`nivel${nivel}`);
+            select.addEventListener("change", () => {
+                const ruta = obtenerRutaHasta(nivel);
+                const subitems = buscarSubitems(ruta);
+                poblarSelect(subitems, nivel + 1);
+            });
+        }
+    }
+
+    cargarJerarquia();
+    setupEventos();
+</script>
 </body>
 </html>
