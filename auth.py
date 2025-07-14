@@ -1,90 +1,348 @@
-from fastapi import Request, Form, HTTPException, status
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
-from supabase import create_client
-from passlib.context import CryptContext
-import os
-from dotenv import load_dotenv
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>GeoProtocolos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
 
-# --- Cargar variables del .env --- #
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-ENV = os.getenv("ENV", "dev")  # dev o prod
-IS_PRODUCTION = ENV == "prod"
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Elimina scroll vertical general */
+        }
 
-# --- Mostrar en consola para depuración --- #
-print(f"🔎 SUPABASE_URL: {SUPABASE_URL}")
-print(f"🔑 SUPABASE_KEY cargada: {bool(SUPABASE_KEY)}")
-print(f"🌍 Modo: {'Producción' if IS_PRODUCTION else 'Desarrollo'}")
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0ea5e9;
+        }
 
-# --- Validación mínima --- #
-if not SUPABASE_URL or not SUPABASE_KEY:
-    raise RuntimeError("❌ Variables SUPABASE_URL o SUPABASE_KEY no están definidas.")
+        h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #334155;
+        }
 
-# --- Conexión a Supabase --- #
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        .container {
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
 
-# --- Seguridad para contraseñas --- #
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-templates = Jinja2Templates(directory="templates")
+        .form-section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
 
-# --- Autenticación --- #
-def autenticar_usuario(username: str, password: str):
-    resultado = supabase.table("usuarios").select("*").eq("username", username).execute()
-    datos = resultado.data
+        .form-control,
+        .form-select {
+            font-size: 13px;
+            padding: 6px 10px;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+        }
 
-    if not datos:
-        return None
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
 
-    user = datos[0]
-    hash_guardado = user.get("hashed_password")
+        .main-flex {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+        }
 
-    if not pwd_context.verify(password, hash_guardado):
-        return None
+        .jerarquia-section {
+            flex: 0 0 33%;
+            min-height: 33vh;
+            overflow-y: auto;
+        }
 
-    return user
+        .formulario-section {
+            flex: 1;
+            overflow-y: auto;
+        }
 
-# --- Verificar cookie o lanzar excepción --- #
-def obtener_usuario_desde_cookie(request: Request) -> str:
-    username = request.cookies.get("usuario")
-    if not username:
-        raise HTTPException(status_code=307, detail="Redireccionar al login")
-    return username
+        .scrollable-table {
+            max-height: 100%;
+            overflow-y: auto;
+        }
 
-# --- Mostrar formulario login --- #
-def mostrar_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request, "mensaje": ""})
+        table.table {
+            margin: 0;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
 
-# --- Procesar login con manejo de errores --- #
-def procesar_login(request: Request, username: str = Form(...), password: str = Form(...)):
-    try:
-        usuario = autenticar_usuario(username, password)
-        if not usuario:
-            return templates.TemplateResponse("login.html", {
-                "request": request,
-                "mensaje": "❌ Usuario o contraseña incorrectos"
-            })
+        table th,
+        table td {
+            font-size: 12.5px;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+            resize: horizontal;
+            overflow: auto;
+        }
 
-        response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
-        response.set_cookie(
-            key="usuario",
-            value=username,
-            httponly=True,
-            secure=IS_PRODUCTION,
-            samesite="Lax"
-        )
-        return response
+        table thead th {
+            background-color: #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            color: #1e293b;
+            font-weight: 600;
+        }
 
-    except Exception as e:
-        print(f"🚨 Error al procesar login: {e}")
-        return templates.TemplateResponse("login.html", {
-            "request": request,
-            "mensaje": f"❌ Error interno: {str(e)}"
-        })
+        table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
 
-# --- Logout --- #
-def cerrar_sesion():
-    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
-    response.delete_cookie("usuario")
-    return response
+        table td {
+            cursor: text;
+        }
+
+        .btn-database {
+            background-color: #0ea5e9;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-database:hover {
+            background-color: #0284c7;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .main-flex {
+                flex-direction: column;
+            }
+            .jerarquia-section, .formulario-section {
+                flex: none;
+                min-height: auto;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="mb-2">Registro de Protocolos</h2>
+
+    <div class="form-section main-flex">
+        <div class="jerarquia-section">
+            <h4 class="mb-3">Selección Jerárquica</h4>
+            <div class="row g-2">
+                {% for i in range(1, 6) %}
+                <div class="col-md-12">
+                    <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                        <option value="">Nivel {{ i }}</option>
+                    </select>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="formulario-section">
+            <h4 class="mb-3">Datos del Protocolo</h4>
+            <div class="row g-2">
+                <div class="col-md-6"><input type="text" class="form-control" placeholder="RP"></div>
+                <div class="col-md-6"><input type="text" class="form-control" placeholder="Protocolo"></div>
+                <div class="col-md-6">
+                    <select class="form-select">
+                        <option value="">Estado</option>
+                        <option value="aprobado">Aprobado</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="rechazado">Rechazado</option>
+                    </select>
+                </div>
+                <div class="col-md-6"><input type="text" class="form-control" placeholder="Capa"></div>
+                <div class="col-md-6"><input type="text" class="form-control" placeholder="PK Inicio"></div>
+                <div class="col-md-6"><input type="text" class="form-control" placeholder="PK Fin"></div>
+                <div class="col-md-6">
+                    <select class="form-select">
+                        <option value="">Lado</option>
+                        <option value="izquierdo">Izquierdo</option>
+                        <option value="derecho">Derecho</option>
+                        <option value="completa">Completa</option>
+                    </select>
+                </div>
+                <div class="col-md-6"><input type="text" class="form-control" placeholder="Espesor"></div>
+                <div class="col-md-6"><input type="text" class="form-control" placeholder="TAG"></div>
+                <div class="col-md-6"><input type="date" class="form-control" placeholder="Fecha Envío"></div>
+                <div class="col-md-6"><input type="date" class="form-control" placeholder="Fecha Aprobación"></div>
+                <div class="col-md-12"><textarea class="form-control" rows="2" placeholder="Observaciones"></textarea></div>
+            </div>
+            <div class="mt-3 text-end">
+                <button class="btn btn-database">💾 Consolidar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section" style="flex-grow: 1; min-height: 0;">
+        <h4 class="mb-3">Resumen de Protocolos</h4>
+        <div class="scrollable-table">
+            <table class="table table-bordered table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>RP</th><th>Protocolo</th><th>Estado</th><th>Nivel 1</th><th>Nivel 2</th>
+                        <th>Nivel 3</th><th>Nivel 4</th><th>Nivel 5</th><th>PK Inicio</th><th>PK Fin</th>
+                        <th>Capa</th><th>Lado</th><th>Espesor</th><th>TAG</th>
+                        <th>Envío</th><th>Aprobación</th><th>Obs</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let jerarquia = {};
+
+    async function cargarJerarquia() {
+        const response = await fetch("/jerarquia");
+        jerarquia = await response.json();
+        poblarSelect(jerarquia, 1);
+    }
+
+    function poblarSelect(data, nivel) {
+        const select = document.getElementById(`nivel${nivel}`);
+        select.innerHTML = `<option value="">Nivel ${nivel}</option>`;
+        for (const codigo in data) {
+            const descripcion = data[codigo]?.descripcion || "";
+            const option = document.createElement("option");
+            option.value = `${codigo} ${descripcion}`;
+            option.textContent = `${codigo} ${descripcion}`;
+            select.appendChild(option);
+        }
+        const sinItem = document.createElement("option");
+        sinItem.value = `Sin_Item_N${nivel}`;
+        sinItem.textContent = "-- No Item --";
+        select.appendChild(sinItem);
+        for (let i = nivel + 1; i <= 5; i++) {
+            const nextSelect = document.getElementById(`nivel${i}`);
+            nextSelect.innerHTML = `<option value="">Nivel ${i}</option><option value="Sin_Item_N${i}">-- No Item --</option>`;
+        }
+    }
+
+    function obtenerRutaHasta(nivel) {
+        let ruta = [];
+        for (let i = 1; i <= nivel; i++) {
+            let val = document.getElementById(`nivel${i}`).value;
+            if (val && !val.startsWith("Sin_Item")) ruta.push(val.split(" ")[0]);
+        }
+        return ruta;
+    }
+
+    function buscarSubitems(ruta) {
+        let actual = jerarquia;
+        for (let cod of ruta) {
+            actual = actual[cod]?.subitems || {};
+        }
+        return actual;
+    }
+
+    function setupEventos() {
+        for (let nivel = 1; nivel < 5; nivel++) {
+            const select = document.getElementById(`nivel${nivel}`);
+            select.addEventListener("change", () => {
+                const ruta = obtenerRutaHasta(nivel);
+                const subitems = buscarSubitems(ruta);
+                poblarSelect(subitems, nivel + 1);
+            });
+        }
+    }
+
+    document.querySelector('.btn-database').addEventListener('click', () => {
+        const tbody = document.querySelector('table tbody');
+        const inputs = document.querySelectorAll('input, select, textarea');
+        let valid = true;
+        for (let input of inputs) {
+            if (input.type !== 'date' && input.value.trim() === '') {
+                input.classList.add('is-invalid');
+                valid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        }
+        if (!valid) {
+            alert("Completa todos los campos antes de consolidar.");
+            return;
+        }
+
+        const row = document.createElement('tr');
+        const getValue = selector => document.querySelector(selector)?.value || '';
+        const getSelectText = selector => {
+            const el = document.querySelector(selector);
+            return el ? el.options[el.selectedIndex]?.text || '' : '';
+        };
+
+        const data = [
+            tbody.rows.length + 1,
+            getValue('input[placeholder="RP"]'),
+            getValue('input[placeholder="Protocolo"]'),
+            getSelectText('select.form-select:nth-of-type(1)'),
+            getSelectText('#nivel1'),
+            getSelectText('#nivel2'),
+            getSelectText('#nivel3'),
+            getSelectText('#nivel4'),
+            getSelectText('#nivel5'),
+            getValue('input[placeholder="PK Inicio"]'),
+            getValue('input[placeholder="PK Fin"]'),
+            getValue('input[placeholder="Capa"]'),
+            getSelectText('select.form-select:nth-of-type(2)'),
+            getValue('input[placeholder="Espesor"]'),
+            getValue('input[placeholder="TAG"]'),
+            getValue('input[type="date"]:nth-of-type(1)'),
+            getValue('input[type="date"]:nth-of-type(2)'),
+            document.querySelector('textarea')?.value || ''
+        ];
+
+        for (let value of data) {
+            const td = document.createElement('td');
+            td.textContent = value;
+            td.contentEditable = true;
+            td.title = value;
+            td.addEventListener('click', () => {
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(td);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+            row.appendChild(td);
+        }
+
+        tbody.appendChild(row);
+    });
+
+    cargarJerarquia();
+    setupEventos();
+</script>
+</body>
+</html>
