@@ -91,6 +91,18 @@
             font-weight: 600;
         }
 
+        table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        table tbody tr:focus-within {
+            outline: 2px solid #0ea5e9;
+        }
+
+        table td {
+            cursor: text;
+        }
+
         .btn-database {
             background-color: #0ea5e9;
             color: #fff;
@@ -124,7 +136,7 @@
 
     <div class="form-section">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6 d-flex flex-column justify-content-start" style="min-height: 33vh;">
                 <h4 class="mb-3">Selección Jerárquica</h4>
                 <div class="row g-2">
                     {% for i in range(1, 6) %}
@@ -259,6 +271,55 @@
             });
         }
     }
+
+    document.querySelector('.btn-database').addEventListener('click', () => {
+        const tbody = document.querySelector('table tbody');
+        const row = document.createElement('tr');
+
+        const getValue = selector => document.querySelector(selector)?.value || '';
+        const getSelectText = selector => {
+            const el = document.querySelector(selector);
+            return el ? el.options[el.selectedIndex]?.text || '' : '';
+        };
+
+        const data = [
+            tbody.rows.length + 1,
+            getValue('input[placeholder="RP"]'),
+            getValue('input[placeholder="Protocolo"]'),
+            getSelectText('select.form-select:nth-of-type(1)'), // Estado
+            getSelectText('#nivel1'),
+            getSelectText('#nivel2'),
+            getSelectText('#nivel3'),
+            getSelectText('#nivel4'),
+            getSelectText('#nivel5'),
+            getValue('input[placeholder="PK Inicio"]'),
+            getValue('input[placeholder="PK Fin"]'),
+            getValue('input[placeholder="Capa"]'),
+            getSelectText('select.form-select:nth-of-type(2)'), // Lado
+            getValue('input[placeholder="Espesor"]'),
+            getValue('input[placeholder="TAG"]'),
+            getValue('input[type="date"]:nth-of-type(1)'),
+            getValue('input[type="date"]:nth-of-type(2)'),
+            document.querySelector('textarea')?.value || ''
+        ];
+
+        for (let value of data) {
+            const td = document.createElement('td');
+            td.textContent = value;
+            td.contentEditable = true;
+            td.title = value;
+            td.addEventListener('click', () => {
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(td);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+            row.appendChild(td);
+        }
+
+        tbody.appendChild(row);
+    });
 
     cargarJerarquia();
     setupEventos();
