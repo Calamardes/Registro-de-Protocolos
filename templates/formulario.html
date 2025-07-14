@@ -1,233 +1,328 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>GeoProtocolos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f3f4f6;
-      font-family: 'Inter', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <title>GeoProtocolos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
 
-    .scrollable-table {
-      max-height: 400px;
-      overflow-y: auto;
-    }
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+        }
 
-    table.table {
-      margin: 0;
-      border-collapse: collapse;
-      table-layout: fixed;
-      width: 100%;
-    }
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0ea5e9;
+        }
 
-    table th,
-    table td {
-      font-size: 12.5px;
-      padding: 6px;
-      text-align: center;
-      vertical-align: middle;
-      white-space: nowrap;
-      resize: horizontal;
-      overflow: hidden;
-    }
+        h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #334155;
+        }
 
-    table thead th {
-      background-color: #e2e8f0;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      cursor: pointer;
-    }
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            overflow-x: hidden;
+        }
 
-    .form-control,
-    .form-select {
-      font-size: 13px;
-      height: auto;
-    }
+        .form-section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
 
-    .form-section {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 24px;
-      border: 1px solid #e2e8f0;
-    }
+        .form-control,
+        .form-select {
+            font-size: 13px;
+            padding: 6px 10px;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+        }
 
-    .btn-database {
-      background-color: #0ea5e9;
-      color: #fff;
-      font-weight: 500;
-    }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
 
-    .btn-database:hover {
-      background-color: #0284c7;
-    }
+        .scrollable-table {
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
-    input.table-filter {
-      width: 100%;
-      font-size: 12px;
-      padding: 2px;
-    }
+        table.table {
+            margin: 0;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
 
-    #global-search {
-      margin-bottom: 10px;
-      font-size: 13px;
-    }
-  </style>
+        table th,
+        table td {
+            font-size: 12.5px;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        table thead th {
+            background-color: #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        table tbody tr:focus-within {
+            outline: 2px solid #0ea5e9;
+        }
+
+        table td {
+            cursor: text;
+        }
+
+        .btn-database {
+            background-color: #0ea5e9;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-database:hover {
+            background-color: #0284c7;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+        }
+
+        @media (max-width: 768px) {
+            .col-md-3, .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-4">
-  <h2 class="mb-3">Registro de Protocolos</h2>
+<div class="container">
+    <h2 class="mb-4">Registro de Protocolos</h2>
 
-  <div class="form-section">
-    <div class="row">
-      <div class="col-md-6" style="min-height: 33vh;">
-        <h5>Selección Jerárquica</h5>
-        <div class="row g-2">
-          {% for i in range(1, 6) %}
-          <div class="col-12">
-            <select class="form-select" id="nivel{{ i }}">
-              <option value="">Nivel {{ i }}</option>
-            </select>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-      <div class="col-md-6">
-        <h5>Datos del Protocolo</h5>
-        <div class="row g-2">
-          <div class="col-6"><input type="text" class="form-control" placeholder="RP"></div>
-          <div class="col-6"><input type="text" class="form-control" placeholder="Protocolo"></div>
-          <div class="col-6">
-            <select class="form-select">
-              <option value="">Estado</option>
-              <option value="Aprobado">Aprobado</option>
-              <option value="Pendiente">Pendiente</option>
-              <option value="Rechazado">Rechazado</option>
-            </select>
-          </div>
-          <div class="col-6"><input type="text" class="form-control" placeholder="Capa"></div>
-          <div class="col-6"><input type="text" class="form-control" placeholder="PK Inicio"></div>
-          <div class="col-6"><input type="text" class="form-control" placeholder="PK Fin"></div>
-          <div class="col-6">
-            <select class="form-select">
-              <option value="">Lado</option>
-              <option value="Izquierdo">Izquierdo</option>
-              <option value="Derecho">Derecho</option>
-              <option value="Completa">Completa</option>
-            </select>
-          </div>
-          <div class="col-6"><input type="text" class="form-control" placeholder="Espesor"></div>
-          <div class="col-6"><input type="text" class="form-control" placeholder="TAG"></div>
-          <div class="col-6"><input type="date" class="form-control" placeholder="Fecha Envío"></div>
-          <div class="col-6"><input type="date" class="form-control" placeholder="Fecha Aprobación"></div>
-          <div class="col-12"><textarea class="form-control" rows="2" placeholder="Observaciones"></textarea></div>
-        </div>
-        <div class="mt-3 text-end">
-          <button class="btn btn-database">💾 Consolidar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+    <div class="form-section">
+        <div class="row">
+            <div class="col-md-6 d-flex flex-column justify-content-start" style="min-height: 33vh;">
+                <h4 class="mb-3">Selección Jerárquica</h4>
+                <div class="row g-2">
+                    {% for i in range(1, 6) %}
+                    <div class="col-md-12">
+                        <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                            <option value="">Nivel {{ i }}</option>
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
 
-  <div class="form-section">
-    <h5 class="mb-2">Resumen de Protocolos</h5>
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <input id="global-search" class="form-control w-50" placeholder="🔍 Buscar en toda la tabla">
-      <span><strong>Total:</strong> <span id="total-count">0</span></span>
+            <div class="col-md-6">
+                <h4 class="mb-3">Datos del Protocolo</h4>
+                <div class="row g-2">
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="RP"></div>
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="Protocolo"></div>
+                    <div class="col-md-6">
+                        <select class="form-select">
+                            <option value="">Estado</option>
+                            <option value="aprobado">Aprobado</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="rechazado">Rechazado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="Capa"></div>
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="PK Inicio"></div>
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="PK Fin"></div>
+                    <div class="col-md-6">
+                        <select class="form-select">
+                            <option value="">Lado</option>
+                            <option value="izquierdo">Izquierdo</option>
+                            <option value="derecho">Derecho</option>
+                            <option value="completa">Completa</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="Espesor"></div>
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="TAG"></div>
+                    <div class="col-md-6"><input type="date" class="form-control" placeholder="Fecha Envío"></div>
+                    <div class="col-md-6"><input type="date" class="form-control" placeholder="Fecha Aprobación"></div>
+                    <div class="col-md-12"><textarea class="form-control" rows="2" placeholder="Observaciones"></textarea></div>
+                </div>
+                <div class="mt-3 text-end">
+                    <button class="btn btn-database">💾 Consolidar</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="scrollable-table">
-      <table class="table table-bordered table-hover table-sm" id="tabla-protocolos">
-        <thead>
-          <tr id="encabezados">
-            <th>ID</th><th>RP</th><th>Protocolo</th><th>Estado</th><th>Nivel 1</th><th>Nivel 2</th>
-            <th>Nivel 3</th><th>Nivel 4</th><th>Nivel 5</th><th>PK Inicio</th><th>PK Fin</th>
-            <th>Capa</th><th>Lado</th><th>Espesor</th><th>TAG</th><th>Envío</th><th>Aprobación</th><th>Obs</th>
-          </tr>
-          <tr>
-            {% for i in range(18) %}
-            <th><input class="table-filter" data-col="{{ i }}" onkeyup="filtrarColumna(this)"></th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+
+    <div class="form-section">
+        <h4 class="mb-3">Resumen de Protocolos</h4>
+        <div class="scrollable-table">
+            <table class="table table-bordered table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>RP</th><th>Protocolo</th><th>Estado</th><th>Nivel 1</th><th>Nivel 2</th>
+                        <th>Nivel 3</th><th>Nivel 4</th><th>Nivel 5</th><th>PK Inicio</th><th>PK Fin</th>
+                        <th>Capa</th><th>Lado</th><th>Espesor</th><th>TAG</th>
+                        <th>Envío</th><th>Aprobación</th><th>Obs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in range(10) %}
+                    <tr>
+                        {% for j in range(18) %}
+                        <td contenteditable="true">&nbsp;</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-  const tabla = document.getElementById('tabla-protocolos').getElementsByTagName('tbody')[0];
-  const totalContador = document.getElementById('total-count');
+    let jerarquia = {};
 
-  document.querySelector('.btn-database').addEventListener('click', () => {
-    const campos = document.querySelectorAll('.form-control, .form-select');
-    const datos = Array.from(campos).map(e => e.value.trim());
-
-    // Validación básica
-    if (datos.filter(d => d !== "").length < 10) {
-      alert("Por favor completa los campos obligatorios.");
-      return;
+    async function cargarJerarquia() {
+        const response = await fetch("/jerarquia");
+        jerarquia = await response.json();
+        poblarSelect(jerarquia, 1);
     }
 
-    const fila = document.createElement('tr');
-    const id = tabla.rows.length + 1;
-    const niveles = [...Array(5).keys()].map(i => document.getElementById(`nivel${i + 1}`)?.value || "");
-    const valores = [id, ...datos.slice(0, 2), datos[2], ...niveles, datos[4], datos[5], datos[3], datos[6], datos[7], datos[8], datos[9], datos[10], datos[11]];
+    function poblarSelect(data, nivel) {
+        const select = document.getElementById(`nivel${nivel}`);
+        select.innerHTML = `<option value="">Nivel ${nivel}</option>`;
 
-    valores.forEach(valor => {
-      const celda = document.createElement('td');
-      celda.textContent = valor;
-      celda.contentEditable = true;
-      celda.title = valor;
-      celda.addEventListener("click", () => {
-        const r = document.createRange();
-        r.selectNodeContents(celda);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(r);
-      });
-      fila.appendChild(celda);
+        for (const codigo in data) {
+            const descripcion = data[codigo]?.descripcion || "";
+            const option = document.createElement("option");
+            option.value = `${codigo} ${descripcion}`;
+            option.textContent = `${codigo} ${descripcion}`;
+            select.appendChild(option);
+        }
+
+        const sinItem = document.createElement("option");
+        sinItem.value = `Sin_Item_N${nivel}`;
+        sinItem.textContent = "-- No Item --";
+        select.appendChild(sinItem);
+
+        for (let i = nivel + 1; i <= 5; i++) {
+            const nextSelect = document.getElementById(`nivel${i}`);
+            nextSelect.innerHTML = `<option value="">Nivel ${i}</option><option value="Sin_Item_N${i}">-- No Item --</option>`;
+        }
+    }
+
+    function obtenerRutaHasta(nivel) {
+        let ruta = [];
+        for (let i = 1; i <= nivel; i++) {
+            let val = document.getElementById(`nivel${i}`).value;
+            if (val && !val.startsWith("Sin_Item")) ruta.push(val.split(" ")[0]);
+        }
+        return ruta;
+    }
+
+    function buscarSubitems(ruta) {
+        let actual = jerarquia;
+        for (let cod of ruta) {
+            actual = actual[cod]?.subitems || {};
+        }
+        return actual;
+    }
+
+    function setupEventos() {
+        for (let nivel = 1; nivel < 5; nivel++) {
+            const select = document.getElementById(`nivel${nivel}`);
+            select.addEventListener("change", () => {
+                const ruta = obtenerRutaHasta(nivel);
+                const subitems = buscarSubitems(ruta);
+                poblarSelect(subitems, nivel + 1);
+            });
+        }
+    }
+
+    document.querySelector('.btn-database').addEventListener('click', () => {
+        const tbody = document.querySelector('table tbody');
+        const row = document.createElement('tr');
+
+        const getValue = selector => document.querySelector(selector)?.value || '';
+        const getSelectText = selector => {
+            const el = document.querySelector(selector);
+            return el ? el.options[el.selectedIndex]?.text || '' : '';
+        };
+
+        const data = [
+            tbody.rows.length + 1,
+            getValue('input[placeholder="RP"]'),
+            getValue('input[placeholder="Protocolo"]'),
+            getSelectText('select.form-select:nth-of-type(1)'), // Estado
+            getSelectText('#nivel1'),
+            getSelectText('#nivel2'),
+            getSelectText('#nivel3'),
+            getSelectText('#nivel4'),
+            getSelectText('#nivel5'),
+            getValue('input[placeholder="PK Inicio"]'),
+            getValue('input[placeholder="PK Fin"]'),
+            getValue('input[placeholder="Capa"]'),
+            getSelectText('select.form-select:nth-of-type(2)'), // Lado
+            getValue('input[placeholder="Espesor"]'),
+            getValue('input[placeholder="TAG"]'),
+            getValue('input[type="date"]:nth-of-type(1)'),
+            getValue('input[type="date"]:nth-of-type(2)'),
+            document.querySelector('textarea')?.value || ''
+        ];
+
+        for (let value of data) {
+            const td = document.createElement('td');
+            td.textContent = value;
+            td.contentEditable = true;
+            td.title = value;
+            td.addEventListener('click', () => {
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(td);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+            row.appendChild(td);
+        }
+
+        tbody.appendChild(row);
     });
 
-    tabla.appendChild(fila);
-    totalContador.textContent = tabla.rows.length;
-  });
-
-  // Filtro por columna
-  function filtrarColumna(input) {
-    const col = input.getAttribute("data-col");
-    const valor = input.value.toLowerCase();
-    for (let row of tabla.rows) {
-      const texto = row.cells[col]?.textContent.toLowerCase() || "";
-      row.style.display = texto.includes(valor) ? "" : "none";
-    }
-  }
-
-  // Búsqueda global
-  document.getElementById("global-search").addEventListener("keyup", function () {
-    const val = this.value.toLowerCase();
-    for (let row of tabla.rows) {
-      row.style.display = Array.from(row.cells).some(td => td.textContent.toLowerCase().includes(val)) ? "" : "none";
-    }
-  });
-
-  // Ordenar columnas
-  document.querySelectorAll("#encabezados th").forEach((th, i) => {
-    th.addEventListener("click", () => {
-      const filas = Array.from(tabla.rows);
-      const asc = th.classList.toggle("asc");
-      filas.sort((a, b) => {
-        const t1 = a.cells[i].textContent;
-        const t2 = b.cells[i].textContent;
-        return asc ? t1.localeCompare(t2) : t2.localeCompare(t1);
-      });
-      filas.forEach(f => tabla.appendChild(f));
-    });
-  });
+    cargarJerarquia();
+    setupEventos();
 </script>
 </body>
 </html>
