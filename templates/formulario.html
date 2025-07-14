@@ -32,7 +32,7 @@
             color: #212529;
             border: 1px solid #ced4da;
             font-size: 13px;
-            padding: 0.4rem 0.6rem;
+            padding: 0.6rem 0.6rem;
         }
         .form-control::placeholder {
             color: #6c757d;
@@ -50,11 +50,6 @@
             font-size: 16px;
             color: #495057;
             font-weight: 600;
-        }
-        label.form-label {
-            font-size: 12px;
-            color: #495057;
-            margin-bottom: 0.25rem;
         }
         .scrollable-table {
             max-height: 400px;
@@ -99,7 +94,7 @@
                     <div class="row g-2">
                         {% for i in range(1, 6) %}
                         <div class="col-12">
-                            <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}">
+                            <select class="form-select" name="nivel{{ i }}" id="nivel{{ i }}" aria-label="Nivel {{ i }}">
                                 <option value="">Nivel {{ i }}</option>
                             </select>
                         </div>
@@ -114,19 +109,38 @@
                     <div class="row g-2">
                         <div class="col-md-3"><input type="text" name="rp_number" class="form-control" placeholder="RP"></div>
                         <div class="col-md-3"><input type="text" name="protocol_number" class="form-control" placeholder="Protocolo"></div>
-                        <div class="col-md-3"><input type="text" name="status" class="form-control" placeholder="Estado"></div>
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="" disabled selected>Estado</option>
+                                <option value="Aprobado">Aprobado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Rechazado">Rechazado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3"></div>
+
                         <div class="col-md-3"><input type="text" name="pk_start" class="form-control" placeholder="PK Inicio"></div>
                         <div class="col-md-3"><input type="text" name="pk_end" class="form-control" placeholder="PK Fin"></div>
                         <div class="col-md-3"><input type="text" name="layer" class="form-control" placeholder="Capa"></div>
-                        <div class="col-md-3"><input type="text" name="work_side" class="form-control" placeholder="Lado"></div>
+                        <div class="col-md-3">
+                            <select name="work_side" class="form-select">
+                                <option value="" disabled selected>Lado</option>
+                                <option value="Izquierda">Izquierda</option>
+                                <option value="Derecha">Derecha</option>
+                                <option value="Completa">Completa</option>
+                            </select>
+                        </div>
+
                         <div class="col-md-3"><input type="text" name="thickness_m" class="form-control" placeholder="Espesor"></div>
                         <div class="col-md-3"><input type="text" name="tag" class="form-control" placeholder="TAG"></div>
-                        <div class="col-md-3"><input type="date" name="submission_date_pt" class="form-control" placeholder="Fecha Envío"></div>
-                        <div class="col-md-3"><input type="date" name="approval_date_pt" class="form-control" placeholder="Fecha Aprobación"></div>
-                        <div class="col-md-6"><textarea name="observation_notes" class="form-control" rows="2" placeholder="Observaciones"></textarea></div>
+                        <div class="col-md-3"><input type="date" name="submission_date_pt" class="form-control"></div>
+                        <div class="col-md-3"><input type="date" name="approval_date_pt" class="form-control"></div>
+                        <div class="col-md-12">
+                            <textarea name="observation_notes" class="form-control" rows="2" placeholder="Observaciones"></textarea>
+                        </div>
                     </div>
                     <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">🧩 Consolidar Registro</button>
+                        <button type="submit" class="btn btn-primary w-100">🧩 Consolidar Registro</button>
                     </div>
                 </div>
             </div>
@@ -168,7 +182,13 @@
 
     function poblarSelect(data, nivel) {
         const select = document.getElementById(`nivel${nivel}`);
-        select.innerHTML = '<option value="">-- Seleccionar --</option>';
+        select.innerHTML = '';
+
+        const placeholder = document.createElement("option");
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        placeholder.textContent = `Nivel ${nivel}`;
+        select.appendChild(placeholder);
 
         for (const codigo in data) {
             const descripcion = data[codigo]?.descripcion || "";
@@ -185,7 +205,17 @@
 
         for (let i = nivel + 1; i <= 5; i++) {
             const nextSelect = document.getElementById(`nivel${i}`);
-            nextSelect.innerHTML = '<option value="">-- Seleccionar --</option><option value="Sin_Item_N' + i + '">-- No Item --</option>';
+            nextSelect.innerHTML = '';
+            const placeholder = document.createElement("option");
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            placeholder.textContent = `Nivel ${i}`;
+            nextSelect.appendChild(placeholder);
+
+            const opt = document.createElement("option");
+            opt.value = `Sin_Item_N${i}`;
+            opt.textContent = "-- No Item --";
+            nextSelect.appendChild(opt);
         }
     }
 
