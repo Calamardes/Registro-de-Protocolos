@@ -11,41 +11,35 @@
       font-family: 'Inter', sans-serif;
       box-sizing: border-box;
     }
-
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
     }
-
     .container {
       height: 100vh;
       display: flex;
       flex-direction: column;
       padding: 16px;
     }
-
     h2 {
       font-size: 24px;
       font-weight: 600;
       color: #0ea5e9;
       margin-bottom: 12px;
     }
-
     h4 {
       font-size: 18px;
       font-weight: 600;
       color: #334155;
     }
-
     .main-content {
       flex: 0 0 auto;
       display: flex;
       gap: 16px;
       margin-bottom: 12px;
     }
-
     .jerarquia-section {
       flex: 0 0 33.33%;
       background: #fff;
@@ -55,14 +49,12 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
       height: fit-content;
     }
-
     .formulario-section {
       flex: 0 0 66.66%;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
     .form-section {
       background: #fff;
       border: 1px solid #e2e8f0;
@@ -70,7 +62,6 @@
       padding: 16px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
-
     .form-control, .form-select {
       font-size: 13px;
       padding: 6px 10px;
@@ -78,12 +69,10 @@
       border-radius: 6px;
       border: 1px solid #cbd5e1;
     }
-
     .form-control:focus, .form-select:focus {
       border-color: #0ea5e9;
       box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
     }
-
     .btn-database {
       background-color: #0ea5e9;
       color: #fff;
@@ -95,11 +84,9 @@
       transition: background-color 0.2s ease;
       width: 100%;
     }
-
     .btn-database:hover {
       background-color: #0284c7;
     }
-
     .table-section {
       flex: 1 1 auto;
       min-height: 0;
@@ -111,18 +98,15 @@
       display: flex;
       flex-direction: column;
     }
-
     .scrollable-table {
       flex: 1;
       overflow-y: auto;
     }
-
     table.table {
       margin: 0;
       border-collapse: collapse;
       table-layout: auto;
     }
-
     table th, table td {
       font-size: 12.5px;
       padding: 6px;
@@ -131,7 +115,6 @@
       white-space: nowrap;
       height: 38px;
     }
-
     table thead th {
       background-color: #e2e8f0;
       position: sticky;
@@ -140,15 +123,12 @@
       color: #1e293b;
       font-weight: 600;
     }
-
     table tbody tr:hover {
       background-color: #f1f5f9;
     }
-
     table td {
       cursor: text;
     }
-
     textarea.form-control {
       resize: vertical;
     }
@@ -158,57 +138,59 @@
   <div class="container">
     <h2>Registro de Protocolos</h2>
 
-    <div class="main-content">
-      <div class="jerarquia-section">
-        <h4 class="mb-3">Selección Jerárquica</h4>
-        <div class="row g-2">
-          {% for i in range(1, 6) %}
-          <div class="col-12">
-            <select class="form-select" id="nivel{{ i }}">
-              <option value="">Nivel {{ i }}</option>
-            </select>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="formulario-section">
-        <div class="form-section">
-          <h4 class="mb-3">Datos del Protocolo</h4>
+    <form method="POST" action="/registro">
+      <div class="main-content">
+        <div class="jerarquia-section">
+          <h4 class="mb-3">Selección Jerárquica</h4>
           <div class="row g-2">
-            <div class="col-md-4"><input type="text" class="form-control" id="rp" placeholder="RP"></div>
-            <div class="col-md-4"><input type="text" class="form-control" id="protocolo" placeholder="Protocolo"></div>
-            <div class="col-md-4">
-              <select class="form-select" id="estado">
-                <option value="">Estado</option>
-                <option value="aprobado">Aprobado</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="rechazado">Rechazado</option>
+            {% for i in range(1, 6) %}
+            <div class="col-12">
+              <select class="form-select" id="nivel{{ i }}" name="nivel{{ i }}">
+                <option value="">Nivel {{ i }}</option>
               </select>
             </div>
-            <div class="col-md-4"><input type="text" class="form-control" placeholder="Capa"></div>
-            <div class="col-md-4"><input type="text" class="form-control" placeholder="PK Inicio"></div>
-            <div class="col-md-4"><input type="text" class="form-control" placeholder="PK Fin"></div>
-            <div class="col-md-4">
-              <select class="form-select">
-                <option value="">Lado</option>
-                <option value="izquierdo">Izquierdo</option>
-                <option value="derecho">Derecho</option>
-                <option value="completa">Completa</option>
-              </select>
-            </div>
-            <div class="col-md-4"><input type="text" class="form-control" placeholder="Espesor"></div>
-            <div class="col-md-4"><input type="text" class="form-control" placeholder="TAG"></div>
-            <div class="col-md-4"><input type="date" class="form-control" id="fecha-envio" placeholder="Fecha Envío"></div>
-            <div class="col-md-4"><input type="date" class="form-control" id="fecha-aprobacion" placeholder="Fecha Aprobación"></div>
-            <div class="col-md-8"><textarea class="form-control" rows="2" placeholder="Observaciones"></textarea></div>
-            <div class="col-md-4 d-flex align-items-end">
-              <button class="btn btn-database">💾 Consolidar</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="formulario-section">
+          <div class="form-section">
+            <h4 class="mb-3">Datos del Protocolo</h4>
+            <div class="row g-2">
+              <div class="col-md-4"><input type="text" class="form-control" id="rp" name="rp_number" placeholder="RP"></div>
+              <div class="col-md-4"><input type="text" class="form-control" id="protocolo" name="protocol_number" placeholder="Protocolo"></div>
+              <div class="col-md-4">
+                <select class="form-select" id="estado" name="status">
+                  <option value="">Estado</option>
+                  <option value="aprobado">Aprobado</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="rechazado">Rechazado</option>
+                </select>
+              </div>
+              <div class="col-md-4"><input type="text" class="form-control" name="layer" placeholder="Capa"></div>
+              <div class="col-md-4"><input type="text" class="form-control" name="pk_start" placeholder="PK Inicio"></div>
+              <div class="col-md-4"><input type="text" class="form-control" name="pk_end" placeholder="PK Fin"></div>
+              <div class="col-md-4">
+                <select class="form-select" name="work_side">
+                  <option value="">Lado</option>
+                  <option value="izquierdo">Izquierdo</option>
+                  <option value="derecho">Derecho</option>
+                  <option value="completa">Completa</option>
+                </select>
+              </div>
+              <div class="col-md-4"><input type="text" class="form-control" name="thickness_m" placeholder="Espesor"></div>
+              <div class="col-md-4"><input type="text" class="form-control" name="tag" placeholder="TAG"></div>
+              <div class="col-md-4"><input type="date" class="form-control" id="fecha-envio" name="submission_date_pt" placeholder="Fecha Envío"></div>
+              <div class="col-md-4"><input type="date" class="form-control" id="fecha-aprobacion" name="approval_date_pt" placeholder="Fecha Aprobación"></div>
+              <div class="col-md-8"><textarea class="form-control" name="observation_notes" rows="2" placeholder="Observaciones"></textarea></div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-database">💾 Consolidar</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </form>
 
     <div class="table-section">
       <h4 class="mb-3">Resumen de Protocolos</h4>
@@ -284,48 +266,6 @@
         });
       }
     }
-
-    document.querySelector('.btn-database').addEventListener('click', () => {
-      const tbody = document.querySelector('table tbody');
-      const camposFaltantes = [];
-      const getIdValue = id => document.getElementById(id)?.value.trim();
-
-      // Validar niveles
-      for (let i = 1; i <= 5; i++) {
-        if (!getIdValue(`nivel${i}`)) camposFaltantes.push(`Nivel ${i}`);
-      }
-
-      const rp = getIdValue("rp");
-      const protocolo = getIdValue("protocolo");
-      const estado = getIdValue("estado");
-      const fechaEnvio = getIdValue("fecha-envio");
-      const fechaAprobacion = getIdValue("fecha-aprobacion");
-
-      if (!rp && !protocolo) camposFaltantes.push("RP o Protocolo");
-      if (!estado) camposFaltantes.push("Estado");
-      if (!fechaEnvio) camposFaltantes.push("Fecha Envío");
-      if (!fechaAprobacion) camposFaltantes.push("Fecha Aprobación");
-
-      // Chequear duplicados
-      for (let row of tbody.rows) {
-        if (row.cells[1].textContent.trim().toLowerCase() === rp.toLowerCase() && rp) {
-          alert("⚠️ El documento ya está ingresado con ese número de RP.");
-          return;
-        }
-        if (row.cells[2].textContent.trim().toLowerCase() === protocolo.toLowerCase() && protocolo) {
-          alert("⚠️ El documento ya está ingresado con ese número de Protocolo.");
-          return;
-        }
-      }
-
-      if (camposFaltantes.length > 0) {
-        alert("⚠️ Faltan campos obligatorios:\n" + camposFaltantes.join("\n"));
-        return;
-      }
-
-      // Agregar fila si está todo correcto (puedes mantener tu lógica original aquí)
-      // ...
-    });
 
     cargarJerarquia();
     setupEventos();
