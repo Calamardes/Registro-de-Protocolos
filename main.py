@@ -4,7 +4,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.status import HTTP_303_SEE_OTHER
-from excel_handler import guardar_fila_excel
 from auth import (
     autenticar_usuario,
     obtener_usuario_desde_cookie,
@@ -12,11 +11,15 @@ from auth import (
     procesar_login,
     cerrar_sesion
 )
+from supabase import create_client, Client
+from dotenv import load_dotenv
 import os
 import json
 
+# Inicializar FastAPI
 app = FastAPI()
 
+# Middleware CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,15 +27,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Cargar templates y archivos estáticos
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Cargar variables de entorno
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Excepciones personalizadas
 @app.exception_handler(HTTPException)
 async def manejar_excepciones(request: Request, exc: HTTPException):
     if exc.status_code == 307 and "Redireccionar" in str(exc.detail):
         return RedirectResponse(url="/login")
     raise exc
 
+# Rutas de login
 @app.get("/login", response_class=HTMLResponse)
 def login_get(request: Request):
     return mostrar_login(request)
@@ -45,14 +57,16 @@ def login_post(request: Request, username: str = Form(...), password: str = Form
 def logout():
     return cerrar_sesion()
 
+# Verificar variables de entorno (debug)
 @app.get("/ver-vars")
 def ver_vars():
     return {
-        "SUPABASE_URL": os.getenv("SUPABASE_URL"),
-        "SUPABASE_KEY": bool(os.getenv("SUPABASE_KEY")),
+        "SUPABASE_URL": SUPABASE_URL,
+        "SUPABASE_KEY": bool(SUPABASE_KEY),
         "ENV": os.getenv("ENV")
     }
 
+# Cargar jerarquía desde archivo JSON
 @app.get("/jerarquia")
 def obtener_jerarquia():
     json_path = os.path.join("data", "itemizado_acciona.json")
@@ -61,6 +75,7 @@ def obtener_jerarquia():
     with open(json_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
+# Página principal del formulario
 @app.get("/", response_class=HTMLResponse)
 def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_cookie)):
     response = templates.TemplateResponse("formulario.html", {
@@ -71,6 +86,7 @@ def formulario(request: Request, usuario: str = Depends(obtener_usuario_desde_co
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
+# Registro en Supabase
 @app.post("/registro", response_class=HTMLResponse)
 async def registrar(
     request: Request,
@@ -93,39 +109,58 @@ async def registrar(
     observation_notes: str = Form(""),
     usuario: str = Depends(obtener_usuario_desde_cookie)
 ):
-    if not protocol_number.strip():
+    fila = {
+        "nivel_1": nivel1 or "-- No Item --",
+        "nivel_2": nivel2 or "-- No Item --",
+        "nivel_3": nivel3 or "-- No Item --",
+        "nivel_4": nivel4 or "-- No Item --",
+        "nivel_5": nivel5 or "-- No Item --",
+        "rp": rp_number,
+        "protocolo": protocol_number,
+        "estado": status,
+        "pk_inicio": pk_start,
+        "pk_fin": pk_end,
+        "capa": layer,
+        "lado": work_side,
+        "espesor": thickness_m,
+        "tag": tag,
+        "fecha_envio": submission_date_pt,
+        "fecha_aprobacion": approval_date_pt,
+        "observaciones": observation_notes,
+        "usuario": usuario
+    }
+
+    # Validar duplicados
+    if protocol_number:
+        existe_protocolo = supabase.from("registro_protocolos").select("id").eq("protocolo", protocol_number).execute()
+        if existe_protocolo.data:
+            return templates.TemplateResponse("formulario.html", {
+                "request": request,
+                "mensaje": "⚠️ Ya existe un registro con ese número de Protocolo.",
+                "usuario": usuario
+            })
+
+    if rp_number:
+        existe_rp = supabase.from("registro_protocolos").select("id").eq("rp", rp_number).execute()
+        if existe_rp.data:
+            return templates.TemplateResponse("formulario.html", {
+                "request": request,
+                "mensaje": "⚠️ Ya existe un registro con ese número de RP.",
+                "usuario": usuario
+            })
+
+    # Insertar en Supabase
+    resultado = supabase.from("registro_protocolos").insert(fila).execute()
+
+    if resultado.error:
         return templates.TemplateResponse("formulario.html", {
             "request": request,
-            "mensaje": "⚠️ Debes ingresar al menos el número de protocolo para registrar.",
+            "mensaje": f"❌ Error al registrar: {resultado.error.message}",
             "usuario": usuario
         })
 
-    fila = {
-        "level_1": nivel1 or "-- No Item --",
-        "level_2": nivel2 or "-- No Item --",
-        "level_3": nivel3 or "-- No Item --",
-        "level_4": nivel4 or "-- No Item --",
-        "level_5": nivel5 or "-- No Item --",
-        "rp_number": rp_number,
-        "protocol_number": protocol_number,
-        "status": status,
-        "pk_start": pk_start,
-        "pk_end": pk_end,
-        "work_side": work_side,
-        "layer": layer,
-        "thickness_m": thickness_m,
-        "tag": tag,
-        "submission_date_pt": submission_date_pt,
-        "approval_date_pt": approval_date_pt,
-        "observation_notes": observation_notes,
-    }
-
-    ruta_excel = "data/topografia_acciona_input_data - copia.xlsx"
-    hoja = "protocol"
-    ok, mensaje = guardar_fila_excel(ruta_excel, hoja, fila)
-
     return templates.TemplateResponse("formulario.html", {
         "request": request,
-        "mensaje": mensaje,
+        "mensaje": "✅ Protocolo registrado exitosamente.",
         "usuario": usuario
     })
